@@ -11,6 +11,7 @@ import PatientDashboard from './pages/PatientDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import AIAssistance from './pages/AIAssistance';
 
 // Components
 import Navbar from './components/Navbar';
@@ -70,6 +71,10 @@ function App() {
               <DoctorDashboard user={user} />
             </ProtectedRoute>
           } 
+        />
+        <Route 
+          path="/ai-assistance/*" 
+          element={<AIAssistance user={user} />} 
         />
       </Routes>
     </div>
