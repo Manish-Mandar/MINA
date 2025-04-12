@@ -97,9 +97,17 @@ const Navbar = ({ user }) => {
               {user ? (
                 <>
                   <div className="relative flex items-center">
-                    <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold shadow-md">
-                      {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
-                    </div>
+                    {user.photoURL ? (
+                      <img 
+                        src={user.photoURL} 
+                        alt={user.displayName || user.email.split('@')[0]}
+                        className="h-10 w-10 rounded-full object-cover shadow-md border-2 border-white"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold shadow-md">
+                        {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
+                      </div>
+                    )}
                     <span className={`ml-2 text-sm font-medium ${isScrolled || !isHomePage ? 'text-gray-700' : 'text-gray-700'}`}>
                       {user.displayName || user.email.split('@')[0]}
                     </span>
@@ -201,9 +209,17 @@ const Navbar = ({ user }) => {
                 <>
                   <div className="flex items-center px-4 py-3">
                     <div className="flex-shrink-0">
-                      <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold">
-                        {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
-                      </div>
+                      {user.photoURL ? (
+                        <img 
+                          src={user.photoURL} 
+                          alt={user.displayName || user.email.split('@')[0]}
+                          className="h-10 w-10 rounded-full object-cover shadow-md border-2 border-white"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold">
+                          {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
+                        </div>
+                      )}
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium text-gray-800">{user.displayName || user.email.split('@')[0]}</div>
