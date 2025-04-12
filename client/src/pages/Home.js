@@ -42,29 +42,29 @@ const Home = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-800 mix-blend-multiply" />
         </div>
         
-        <div className="relative max-w-7xl mx-auto">
-          {/*  prevent wave overlap */}
-          <div className="pt-28 pb-32 px-4 sm:pt-36 sm:pb-40 sm:px-6 lg:pt-44 lg:pb-48 lg:px-8">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* prevent wave overlap */}
+          <div className="pt-20 pb-24 sm:pt-28 sm:pb-32 md:pt-32 md:pb-36 lg:pt-40 lg:pb-40">
             <div className="max-w-3xl">
-              <h1 className="text-3xl font-extrabold text-white sm:text-4xl md:text-5xl lg:text-6xl">
+              <h1 className="text-2xl font-extrabold text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
                 <span className="block">Healthcare from</span>
                 <span className="block text-indigo-200">the comfort of home</span>
               </h1>
-              {/* text size  */}
-              <p className="mt-6 text-lg sm:text-xl text-white font-medium max-w-3xl text-shadow">
+              {/* responsive text size */}
+              <p className="mt-4 md:mt-6 text-base sm:text-lg md:text-xl text-white font-medium max-w-3xl text-shadow">
                 MINA brings healthcare to your fingertips with secure video consultations, 
                 AI-powered health assistance, and seamless appointment booking.
               </p>
-              <div className="mt-8 sm:mt-10 flex flex-wrap gap-4">
+              <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
                 <Link
                   to="/register"
-                  className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-4 md:text-lg md:px-8 transition-all shadow-lg hover:shadow-xl"
+                  className="px-4 py-2 sm:px-6 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-3 md:text-lg md:px-6 lg:px-8 transition-all shadow-lg hover:shadow-xl"
                 >
                   Get Started
                 </Link>
                 <Link
                   to="/about"
-                  className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-500 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-8 transition-all shadow-lg hover:shadow-xl"
+                  className="px-4 py-2 sm:px-6 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-blue-500 bg-white hover:bg-gray-50 md:py-3 md:text-lg md:px-6 lg:px-8 transition-all shadow-lg hover:shadow-xl"
                 >
                   Learn More
                 </Link>
@@ -82,72 +82,72 @@ const Home = () => {
       </div>
 
       {/* Features Section - Enhanced */}
-      <div className="py-16 sm:py-20 bg-white">
+      <div className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:text-center">
+          <div className="text-center">
             <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
-            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            <p className="mt-2 text-2xl sm:text-3xl leading-8 font-extrabold tracking-tight text-gray-900 md:text-4xl">
               A better way to receive healthcare
             </p>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+            <p className="mt-4 max-w-2xl text-lg text-gray-500 mx-auto">
               MINA offers a comprehensive telehealth solution with cutting-edge features.
             </p>
           </div>
 
-          <div className="mt-12 sm:mt-16">
-            <dl className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-8">
-              <div className="relative bg-white p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
+          <div className="mt-10 sm:mt-12 lg:mt-16">
+            <dl className="space-y-4 sm:space-y-6 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-2 md:gap-x-6 md:gap-y-6 lg:gap-8">
+              <div className="relative bg-white p-5 sm:p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
                 <dt>
-                  <div className="absolute flex items-center justify-center h-16 w-16 rounded-md bg-blue-500 text-white">
-                    <svg className="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="absolute flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-md bg-blue-500 text-white">
+                    <svg className="h-6 w-6 sm:h-8 sm:w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900">Video Consultations</p>
+                  <p className="ml-16 sm:ml-20 text-lg sm:text-xl leading-6 font-medium text-gray-900">Video Consultations</p>
                 </dt>
-                <dd className="mt-2 ml-20 text-base text-gray-500">
+                <dd className="mt-2 ml-16 sm:ml-20 text-base text-gray-500">
                   Connect with healthcare professionals through secure, high-quality video calls from anywhere, anytime.
                 </dd>
               </div>
 
-              <div className="relative bg-white p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
+              <div className="relative bg-white p-5 sm:p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
                 <dt>
-                  <div className="absolute flex items-center justify-center h-16 w-16 rounded-md bg-blue-500 text-white">
-                    <svg className="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="absolute flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-md bg-blue-500 text-white">
+                    <svg className="h-6 w-6 sm:h-8 sm:w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900">AI Health Assistance</p>
+                  <p className="ml-16 sm:ml-20 text-lg sm:text-xl leading-6 font-medium text-gray-900">AI Health Assistance</p>
                 </dt>
-                <dd className="mt-2 ml-20 text-base text-gray-500">
+                <dd className="mt-2 ml-16 sm:ml-20 text-base text-gray-500">
                   Get instant guidance on first aid, symptom analysis, and medical report explanations powered by LLaMA 4.
                 </dd>
               </div>
 
-              <div className="relative bg-white p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
+              <div className="relative bg-white p-5 sm:p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
                 <dt>
-                  <div className="absolute flex items-center justify-center h-16 w-16 rounded-md bg-blue-500 text-white">
-                    <svg className="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="absolute flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-md bg-blue-500 text-white">
+                    <svg className="h-6 w-6 sm:h-8 sm:w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900">Easy Scheduling</p>
+                  <p className="ml-16 sm:ml-20 text-lg sm:text-xl leading-6 font-medium text-gray-900">Easy Scheduling</p>
                 </dt>
-                <dd className="mt-2 ml-20 text-base text-gray-500">
+                <dd className="mt-2 ml-16 sm:ml-20 text-base text-gray-500">
                   Book appointments with doctors at your convenience with our simple scheduling system.
                 </dd>
               </div>
 
-              <div className="relative bg-white p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
+              <div className="relative bg-white p-5 sm:p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
                 <dt>
-                  <div className="absolute flex items-center justify-center h-16 w-16 rounded-md bg-blue-500 text-white">
-                    <svg className="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="absolute flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-md bg-blue-500 text-white">
+                    <svg className="h-6 w-6 sm:h-8 sm:w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900">Secure & Private</p>
+                  <p className="ml-16 sm:ml-20 text-lg sm:text-xl leading-6 font-medium text-gray-900">Secure & Private</p>
                 </dt>
-                <dd className="mt-2 ml-20 text-base text-gray-500">
+                <dd className="mt-2 ml-16 sm:ml-20 text-base text-gray-500">
                   Your health information is protected with industry-standard encryption and security practices.
                 </dd>
               </div>
@@ -156,78 +156,78 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Doctor */}
-      <div className="py-16">
+      {/* Doctor Section - */}
+      <div className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:flex lg:items-center lg:justify-between">
-            <div className="lg:w-1/2">
-              <h2 className="text-base text-primary font-semibold tracking-wide uppercase">
+            <div className="lg:w-1/2 pr-0 lg:pr-8">
+              <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">
                 Connect with Professionals
               </h2>
-              <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              <p className="mt-2 text-2xl sm:text-3xl leading-8 font-extrabold tracking-tight text-gray-900 md:text-4xl">
                 Expert care on your schedule
               </p>
-              <p className="mt-4 text-lg text-gray-500">
+              <p className="mt-4 text-base sm:text-lg text-gray-500">
                 Our network of board-certified doctors, specialists, and therapists are ready to help you 
                 with a wide range of health concerns. Book an appointment in minutes and get the care you need.
               </p>
-              <div className="mt-8 space-y-4">
+              <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="ml-3 text-base text-gray-500">
+                  <p className="ml-3 text-sm sm:text-base text-gray-500">
                     <span className="font-medium text-gray-900">Fast appointments</span> - Often same-day or next-day availability
                   </p>
                 </div>
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="ml-3 text-base text-gray-500">
+                  <p className="ml-3 text-sm sm:text-base text-gray-500">
                     <span className="font-medium text-gray-900">Verified specialists</span> - All healthcare providers are licensed and credentialed
                   </p>
                 </div>
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="ml-3 text-base text-gray-500">
+                  <p className="ml-3 text-sm sm:text-base text-gray-500">
                     <span className="font-medium text-gray-900">Comprehensive care</span> - From general health to specialized treatment
                   </p>
                 </div>
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="ml-3 text-base text-gray-500">
+                  <p className="ml-3 text-sm sm:text-base text-gray-500">
                     <span className="font-medium text-gray-900">Follow-up care</span> - Continuous support for your health journey
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 lg:mt-0 lg:w-1/2 lg:pl-10">
+            <div className="mt-10 lg:mt-0 lg:w-1/2 lg:pl-6">
               <div className="bg-white rounded-lg shadow-xl overflow-hidden">
-                <div className="px-6 py-8 bg-white sm:p-10 sm:pb-6">
+                <div className="px-4 py-6 bg-white sm:p-8 sm:pb-6">
                   <div className="flex items-center justify-center">
-                    <h3 className="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
+                    <h3 className="text-xl sm:text-2xl leading-8 font-extrabold text-gray-900 sm:leading-9">
                       Book Your Appointment
                     </h3>
                   </div>
                 </div>
-                <div className="px-6 pt-6 pb-8 bg-gray-50 sm:p-10">
+                <div className="px-4 py-6 bg-gray-50 sm:p-8">
                   <button
                     onClick={handleOpenAppointmentForm}
-                    className="w-full px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-4 md:text-lg transition-all shadow-lg hover:shadow-xl"
+                    className="w-full px-4 py-2 sm:px-8 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-4 md:text-lg transition-all shadow-lg hover:shadow-xl"
                   >
                     Hire a Doctor Now
                   </button>
@@ -238,102 +238,105 @@ const Home = () => {
         </div>
       </div>
       
-      {/* Testimonial  */}
-      <div className="bg-gray-50 py-20">
+      {/* Testimonial - Improved responsiveness */}
+      <div className="bg-gray-50 py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:text-center mb-16">
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Testimonials</h2>
-            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            <p className="mt-2 text-2xl sm:text-3xl leading-8 font-extrabold tracking-tight text-gray-900 md:text-4xl">
               What our users say
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="bg-white p-5 sm:p-8 rounded-xl shadow-lg">
               <div className="flex items-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-xl">S</span>
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-bold text-lg sm:text-xl">S</span>
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-lg font-bold">Sarah Johnson</h4>
-                    <p className="text-gray-500">Patient</p>
-                  </div>
+                  <h4 className="text-base sm:text-lg font-bold">Sarah Johnson</h4>
+                  <p className="text-sm sm:text-base text-gray-500">Patient</p>
+                </div>
               </div>
-              <p className="text-gray-600">"I was able to consult with a doctor from my home when my child had a high fever. The AI assistant also gave me great advice on how to manage the symptoms while waiting."</p>
+              <p className="text-sm sm:text-base text-gray-600">"I was able to consult with a doctor from my home when my child had a high fever. The AI assistant also gave me great advice on how to manage the symptoms while waiting."</p>
               <div className="mt-4 flex text-yellow-400">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               </div>
             </div>
             
-            <div className="bg-white p-8 rounded-xl shadow-lg">
+            <div className="bg-white p-5 sm:p-8 rounded-xl shadow-lg">
               <div className="flex items-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-xl">M</span>
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-bold text-lg sm:text-xl">M</span>
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-lg font-bold">Dr. Michael Chen</h4>
-                  <p className="text-gray-500">Physician</p>
+                  <h4 className="text-base sm:text-lg font-bold">Dr. Michael Chen</h4>
+                  <p className="text-sm sm:text-base text-gray-500">Physician</p>
                 </div>
               </div>
-              <p className="text-gray-600">"MINA has transformed how I provide care. The platform is intuitive, and I can efficiently manage appointments and consultations with patients remotely."</p>
+              <p className="text-sm sm:text-base text-gray-600">"MINA has transformed how I provide care. The platform is intuitive, and I can efficiently manage appointments and consultations with patients remotely."</p>
               <div className="mt-4 flex text-yellow-400">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               </div>
             </div>
             
-            <div className="bg-white p-8 rounded-xl shadow-lg">
+            <div className="bg-white p-5 sm:p-8 rounded-xl shadow-lg">
               <div className="flex items-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-xl">J</span>
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-bold text-lg sm:text-xl">J</span>
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-lg font-bold">James Wilson</h4>
-                  <p className="text-gray-500">Patient</p>
+                  <h4 className="text-base sm:text-lg font-bold">James Wilson</h4>
+                  <p className="text-sm sm:text-base text-gray-500">Patient</p>
                 </div>
               </div>
-              <p className="text-gray-600">"The AI health assistant helped me understand my lab results before my appointment. This made my consultation much more productive as I could ask informed questions."</p>
+              <p className="text-sm sm:text-base text-gray-600">"The AI health assistant helped me understand my lab results before my appointment. This made my consultation much more productive as I could ask informed questions."</p>
               <div className="mt-4 flex text-yellow-400">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5 text-gray-300">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               </div>
