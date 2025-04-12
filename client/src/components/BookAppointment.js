@@ -236,13 +236,13 @@ const BookAppointment = ({ user, onClose }) => {
 
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-6">
           <div>
-            <label htmlFor="doctorId" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="doctorId" className="block text-sm font-medium text-gray-700 mb-1">
               Select Doctor
             </label>
             <select
               id="doctorId"
               name="doctorId"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+              className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
               value={appointmentData.doctorId}
               onChange={handleChange}
               required
@@ -261,14 +261,14 @@ const BookAppointment = ({ user, onClose }) => {
           </div>
 
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
               Date
             </label>
             <input
               type="date"
               name="date"
               id="date"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2.5 px-3 focus:ring-primary focus:border-primary sm:text-sm"
               value={appointmentData.date}
               onChange={handleChange}
               min={today}
@@ -277,13 +277,13 @@ const BookAppointment = ({ user, onClose }) => {
           </div>
 
           <div>
-            <label htmlFor="time" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
               Time
             </label>
             <select
               id="time"
               name="time"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+              className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
               value={appointmentData.time}
               onChange={handleChange}
               disabled={!appointmentData.doctorId || !appointmentData.date}
@@ -305,7 +305,7 @@ const BookAppointment = ({ user, onClose }) => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
               Reason for Visit
             </label>
             <div className="relative">
