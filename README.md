@@ -1,6 +1,6 @@
 # MINA: My Intelligent Nursing Assistance
 
-**MINA** is a modern and intelligent telemedicine platform developed as a university project to offer a seamless experience for online medical consultations, appointment bookings, and AI-assisted healthcare support.
+**MINA** is a modern and intelligent telemedicine platform developed as a university project, hackthon project to offer a seamless experience for online medical consultations, appointment bookings, and AI-assisted healthcare support.
 
 Built using cutting-edge technologies like React, Firebase, Node.js, and Groq's LLaMA 4, MINA ensures a responsive interface, secure data handling, and AI-powered medical support for users.
 
@@ -83,7 +83,3 @@ Built using cutting-edge technologies like React, Firebase, Node.js, and Groq's 
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
----
-
-## Screenshots
-Add relevant screenshots here to showcase the platform.
