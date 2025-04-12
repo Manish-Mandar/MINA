@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { aiService, appointmentService } from '../services/api';
 import BookAppointment from '../components/BookAppointment';
 import VideoCall from '../components/VideoCall';
@@ -20,6 +20,9 @@ const AIAssistance = ({ user }) => {
   const [aiResponse, setAiResponse] = useState('');
   const [aiMode, setAiMode] = useState('');
   const [processingAi, setProcessingAi] = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  
+  const navigate = useNavigate();
 
   const [groqApiKey, setGroqApiKey] = useState(process.env.REACT_APP_GROQ_API_KEY || '');
   
@@ -505,14 +508,7 @@ const AIAssistance = ({ user }) => {
                 Access your health assistant and appointments
               </p>
             </div>
-            <div className="mt-4 flex md:mt-0 md:ml-4">
-              <Link
-                to="/ai-assistance/book-appointment"
-                className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Book Appointment
-              </Link>
-            </div>
+           
           </div>
         )}
 
@@ -539,7 +535,7 @@ const AIAssistance = ({ user }) => {
             >
               AI Health Panel
             </button>
-            {user && (
+            {user && user.role !== 'doctor' && (
               <button
                 onClick={() => setActiveTab('appointments')}
                 className={`${

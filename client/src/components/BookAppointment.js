@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { appointmentService } from '../services/api';
+import { appointmentService, messageService } from '../services/api';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { db, auth } from '../services/firebase';
 
 const BookAppointment = ({ user, onClose }) => {
   const [doctors, setDoctors] = useState([]);
@@ -12,10 +12,13 @@ const BookAppointment = ({ user, onClose }) => {
     date: '',
     time: '',
     reason: '',
+    message: '', 
   });
   const [availableTimes, setAvailableTimes] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState('');
+  const [charCount, setCharCount] = useState(0);
+  const [messageCharCount, setMessageCharCount] = useState(0); 
   const navigate = useNavigate();
 
   const generateTimeSlots = () => {
@@ -37,8 +40,15 @@ const BookAppointment = ({ user, onClose }) => {
       setError('');
       
       try {
+        if (!auth.currentUser) {
+          console.log('User not authenticated, redirecting to login');
+          setError('Please log in to book an appointment');
+          navigate('/login');
+          setLoadingDoctors(false);
+          return;
+        }
+        
         console.log('Fetching doctors from Firestore...');
-        console.log('Database reference:', db);
         
         if (!db) {
           console.error('Firestore db is not initialized properly');
@@ -48,30 +58,39 @@ const BookAppointment = ({ user, onClose }) => {
         }
         
         const doctorsQuery = query(collection(db, 'users'), where('role', '==', 'doctor'));
-        console.log('Query created:', doctorsQuery);
         
-        const doctorSnapshot = await getDocs(doctorsQuery);
-        console.log('Query executed, received snapshot');
-        
-        if (doctorSnapshot.empty) {
-          console.log('No doctors found in the database');
-          setDoctors([]);
-          return;
-        }
-        
-        const doctorsList = [];
-        doctorSnapshot.forEach(doc => {
-          const doctorData = doc.data();
-          doctorsList.push({
-            id: doc.id,
-            fullName: doctorData.fullName || 'Unknown Doctor',
-            specialty: doctorData.specialty || 'General',
-            ...doctorData
+        try {
+          const doctorSnapshot = await getDocs(doctorsQuery);
+          
+          if (doctorSnapshot.empty) {
+            console.log('No doctors found in the database');
+            setDoctors([]);
+            setLoadingDoctors(false);
+            return;
+          }
+          
+          const doctorsList = [];
+          doctorSnapshot.forEach(doc => {
+            const doctorData = doc.data();
+            doctorsList.push({
+              id: doc.id,
+              fullName: doctorData.fullName || 'Unknown Doctor',
+              specialty: doctorData.specialty || 'General',
+              ...doctorData
+            });
           });
-        });
-        
-        console.log(`Found ${doctorsList.length} doctors:`, doctorsList);
-        setDoctors(doctorsList);
+          
+          console.log(`Found ${doctorsList.length} doctors`);
+          setDoctors(doctorsList);
+        } catch (firestoreError) {
+          console.error('Firestore query error:', firestoreError);
+          
+          if (firestoreError.code === 'permission-denied') {
+            setError('Missing or insufficient permissions. Please make sure you are logged in.');
+          } else {
+            setError(`Failed to load doctors: ${firestoreError.message}`);
+          }
+        }
       } catch (error) {
         console.error('Error fetching doctors:', error);
         setError(`Failed to load doctors: ${error.message}`);
@@ -81,7 +100,7 @@ const BookAppointment = ({ user, onClose }) => {
     };
 
     fetchDoctors();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const updateAvailableTimes = async () => {
@@ -109,6 +128,12 @@ const BookAppointment = ({ user, onClose }) => {
       ...appointmentData,
       [e.target.name]: e.target.value,
     });
+    
+    if (e.target.name === 'reason') {
+      setCharCount(e.target.value.length);
+    } else if (e.target.name === 'message') {
+      setMessageCharCount(e.target.value.length);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -129,12 +154,39 @@ const BookAppointment = ({ user, onClose }) => {
       }
 
       const appointment = {
-        ...appointmentData,
+        doctorId: appointmentData.doctorId,
+        date: appointmentData.date,
+        time: appointmentData.time,
+        reason: appointmentData.reason || 'General consultation',
         patientId: user.uid,
+        patientName: user.displayName || 'Patient',
+        status: 'scheduled',
+        createdAt: new Date().toISOString() 
       };
 
-      await appointmentService.createAppointment(appointment);
+      const createdAppointment = await appointmentService.createAppointment(appointment);
+      console.log('Appointment created successfully:', createdAppointment.id);
       
+      if (appointmentData.message && appointmentData.message.trim()) {
+        try {
+          const message = {
+            doctorId: appointmentData.doctorId,
+            patientId: user.uid,
+            content: appointmentData.message.trim(),
+            appointmentId: createdAppointment.id,
+            patientName: user.displayName || 'Patient',
+            type: 'appointment_message',
+            subject: `Regarding appointment on ${appointmentData.date} at ${appointmentData.time}`
+          };
+          
+          const sentMessage = await messageService.sendMessage(message);
+          console.log('Message sent successfully:', sentMessage.id);
+        } catch (messageError) {
+          console.error('Error sending message:', messageError);
+        }
+      }
+      
+      alert('Appointment booked successfully!');
       navigate('/patient-dashboard');
     } catch (error) {
       console.error('Error booking appointment:', error);
@@ -248,19 +300,60 @@ const BookAppointment = ({ user, onClose }) => {
             </select>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
               Reason for Visit
             </label>
-            <textarea
-              id="reason"
-              name="reason"
-              rows={4}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
-              placeholder="Please briefly describe your symptoms or reason for the appointment"
-              value={appointmentData.reason}
-              onChange={handleChange}
-            />
+            <div className="relative">
+              <textarea
+                id="reason"
+                name="reason"
+                rows={4}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm 
+                focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm
+                transition-all duration-200 ease-in-out
+                bg-white bg-opacity-90 hover:bg-opacity-100 
+                placeholder-gray-400 resize-none p-3"
+                placeholder="Please briefly describe your symptoms or reason for the appointment..."
+                value={appointmentData.reason}
+                onChange={handleChange}
+                maxLength={500}
+              />
+              <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+                {charCount}/500 characters
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 italic">
+              Providing detailed information will help the doctor prepare for your appointment.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+              Message to Doctor <span className="text-gray-500 text-xs">(optional)</span>
+            </label>
+            <div className="relative">
+              <textarea
+                id="message"
+                name="message"
+                rows={3}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm 
+                focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm
+                transition-all duration-200 ease-in-out
+                bg-white bg-opacity-90 hover:bg-opacity-100 
+                placeholder-gray-400 resize-none p-3"
+                placeholder="Any additional information you'd like to share with the doctor..."
+                value={appointmentData.message}
+                onChange={handleChange}
+                maxLength={300}
+              />
+              <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+                {messageCharCount}/300 characters
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 italic">
+              This message will be sent directly to the doctor before your appointment.
+            </p>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t">

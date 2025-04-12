@@ -4,7 +4,6 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from './services/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
-// Pages
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -27,16 +26,16 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          // Get user role from Firestore instead of ID token claims
+
           const userDocRef = doc(db, "users", currentUser.uid);
           const userDoc = await getDoc(userDocRef);
           
-          let role = 'patient'; // Default role
+          let role = 'patient'; 
           if (userDoc.exists()) {
             role = userDoc.data().role || 'patient';
           }
           
-          // Create a user object that includes the role
+         
           const userWithRole = {
             ...currentUser,
             role: role
@@ -47,7 +46,7 @@ function App() {
         } catch (error) {
           console.error("Error getting user role:", error);
           setUser(currentUser);
-          setUserRole('patient'); // Default to patient if there's an error
+          setUserRole('patient');
         }
       } else {
         setUser(null);

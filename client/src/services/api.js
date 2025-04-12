@@ -1,5 +1,5 @@
 import { auth, db } from './firebase';
-import { collection, addDoc, query, where, getDocs, doc, updateDoc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, doc, updateDoc, getDoc, Timestamp, orderBy } from 'firebase/firestore';
 
 const getAuthToken = async () => {
   const currentUser = auth.currentUser;
@@ -106,7 +106,6 @@ export const aiService = {
   }
 };
 
-
 export const appointmentService = {
   getPatientAppointments: async (patientId) => {
     try {
@@ -185,6 +184,132 @@ export const appointmentService = {
       };
     } catch (error) {
       console.error('Update Appointment Error:', error);
+      throw error;
+    }
+  }
+};
+
+export const messageService = {
+  sendMessage: async (message) => {
+    try {
+      console.log('Sending message to doctor user document:', message);
+      
+      const doctorRef = doc(db, 'users', message.doctorId);
+      const doctorDoc = await getDoc(doctorRef);
+      
+      if (!doctorDoc.exists()) {
+        console.error(`Doctor document with ID ${message.doctorId} not found`);
+        throw new Error('Doctor document not found');
+      }
+      
+      const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newMessage = {
+        id: messageId,
+        ...message,
+        createdAt: Timestamp.now(),
+        read: false
+      };
+      
+      const currentData = doctorDoc.data();
+      
+      const messages = Array.isArray(currentData.messages) ? currentData.messages : [];
+      
+      await updateDoc(doctorRef, {
+        messages: [...messages, newMessage]
+      });
+      
+      console.log('Message successfully added to doctor user document with ID:', messageId);
+      return newMessage;
+    } catch (error) {
+      console.error('Send Message Error:', error);
+      throw error;
+    }
+  },
+  
+  getDoctorMessages: async (doctorId) => {
+    try {
+      if (!doctorId) {
+        console.error('Doctor ID is required to fetch messages');
+        return [];
+      }
+      
+      console.log('Fetching messages for doctor:', doctorId);
+      
+      const doctorRef = doc(db, 'users', doctorId);
+      const doctorDoc = await getDoc(doctorRef);
+      
+      if (!doctorDoc.exists()) {
+        console.error(`Doctor document with ID ${doctorId} not found`);
+        return [];
+      }
+      
+      const userData = doctorDoc.data();
+      
+      const messages = Array.isArray(userData.messages) ? userData.messages : [];
+      
+      console.log(`Retrieved ${messages.length} messages for doctor:`, doctorId);
+      
+      if (messages.length > 0) {
+        console.log('Sample message:', messages[0]);
+      }
+      
+      return messages.sort((a, b) => {
+        const timeA = a.createdAt?.seconds ? a.createdAt.seconds : 
+                     (a.createdAt instanceof Date ? a.createdAt.getTime() / 1000 : 
+                     (typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() / 1000 : 0));
+        
+        const timeB = b.createdAt?.seconds ? b.createdAt.seconds : 
+                     (b.createdAt instanceof Date ? b.createdAt.getTime() / 1000 : 
+                     (typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() / 1000 : 0));
+        
+        return timeB - timeA;
+      });
+    } catch (error) {
+      console.error('Get Doctor Messages Error:', error);
+      return [];
+    }
+  },
+  
+  markAsRead: async (doctorId, messageId) => {
+    try {
+      if (!doctorId || !messageId) {
+        console.error('Both doctorId and messageId are required');
+        throw new Error('Missing required parameters');
+      }
+      
+      console.log(`Marking message ${messageId} as read for doctor ${doctorId}`);
+      
+      // Get the doctor's user document
+      const doctorRef = doc(db, 'users', doctorId);
+      const doctorDoc = await getDoc(doctorRef);
+      
+      if (!doctorDoc.exists()) {
+        console.error(`Doctor document with ID ${doctorId} not found`);
+        throw new Error('Doctor document not found');
+      }
+      
+      const userData = doctorDoc.data();
+      const messages = Array.isArray(userData.messages) ? userData.messages : [];
+      
+      const messageExists = messages.some(msg => msg.id === messageId);
+      if (!messageExists) {
+        console.error(`Message with ID ${messageId} not found`);
+        throw new Error('Message not found');
+      }
+      
+      const updatedMessages = messages.map(message => 
+        message.id === messageId 
+          ? { ...message, read: true, readAt: Timestamp.now() } 
+          : message
+      );
+      
+      await updateDoc(doctorRef, { messages: updatedMessages });
+      console.log(`Message ${messageId} marked as read successfully`);
+      
+      const updatedMessage = updatedMessages.find(message => message.id === messageId);
+      return updatedMessage || null;
+    } catch (error) {
+      console.error('Mark As Read Error:', error);
       throw error;
     }
   }
