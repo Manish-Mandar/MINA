@@ -96,7 +96,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Features Section - Enhanced */}
+      {/* Features Section  */}
       <div ref={featuresRef} className="py-12 sm:py-16 lg:py-20 bg-white scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -253,7 +253,7 @@ const Home = () => {
         </div>
       </div>
       
-      {/* Testimonial - Improved responsiveness */}
+      {/* Testimonial  */}
       <div className="bg-gray-50 py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12 lg:mb-16">

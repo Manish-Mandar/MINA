@@ -14,6 +14,7 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,6 +22,35 @@ const Register = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+
+    // Check password strength when password field changes
+    if (e.target.name === 'password') {
+      checkPasswordStrength(e.target.value);
+    }
+  };
+
+  // Function to check password strength
+  const checkPasswordStrength = (password) => {
+    if (!password) {
+      setPasswordStrength('');
+      return;
+    }
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const isLongEnough = password.length >= 8;
+
+    const strength = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChar, isLongEnough].filter(Boolean).length;
+
+    if (strength < 2) {
+      setPasswordStrength('weak');
+    } else if (strength < 4) {
+      setPasswordStrength('medium');
+    } else {
+      setPasswordStrength('strong');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -175,6 +205,11 @@ const Register = () => {
                   onChange={handleChange}
                 />
               </div>
+              {passwordStrength && (
+                <p className={`mt-2 text-sm ${passwordStrength === 'weak' ? 'text-red-600' : passwordStrength === 'medium' ? 'text-yellow-600' : 'text-green-600'}`}>
+                  Password strength: {passwordStrength}
+                </p>
+              )}
             </div>
 
             <div>

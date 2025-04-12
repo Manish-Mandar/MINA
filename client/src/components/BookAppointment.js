@@ -18,7 +18,6 @@ const BookAppointment = ({ user, onClose }) => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Generate time slots from 8 AM to 6 PM
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 8; hour <= 18; hour++) {
@@ -34,22 +33,48 @@ const BookAppointment = ({ user, onClose }) => {
 
   useEffect(() => {
     const fetchDoctors = async () => {
+      setLoadingDoctors(true);
+      setError('');
+      
       try {
+        console.log('Fetching doctors from Firestore...');
+        console.log('Database reference:', db);
+        
+        if (!db) {
+          console.error('Firestore db is not initialized properly');
+          setError('Database connection error. Please try again later.');
+          setLoadingDoctors(false);
+          return;
+        }
+        
         const doctorsQuery = query(collection(db, 'users'), where('role', '==', 'doctor'));
+        console.log('Query created:', doctorsQuery);
+        
         const doctorSnapshot = await getDocs(doctorsQuery);
+        console.log('Query executed, received snapshot');
+        
+        if (doctorSnapshot.empty) {
+          console.log('No doctors found in the database');
+          setDoctors([]);
+          return;
+        }
         
         const doctorsList = [];
         doctorSnapshot.forEach(doc => {
+          const doctorData = doc.data();
           doctorsList.push({
             id: doc.id,
-            ...doc.data()
+            fullName: doctorData.fullName || 'Unknown Doctor',
+            specialty: doctorData.specialty || 'General',
+            ...doctorData
           });
         });
         
+        console.log(`Found ${doctorsList.length} doctors:`, doctorsList);
         setDoctors(doctorsList);
       } catch (error) {
         console.error('Error fetching doctors:', error);
-        setError('Failed to load doctors');
+        setError(`Failed to load doctors: ${error.message}`);
       } finally {
         setLoadingDoctors(false);
       }

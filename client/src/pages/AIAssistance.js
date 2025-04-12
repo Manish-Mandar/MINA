@@ -4,6 +4,8 @@ import { aiService, appointmentService } from '../services/api';
 import BookAppointment from '../components/BookAppointment';
 import VideoCall from '../components/VideoCall';
 
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 const AIAssistance = ({ user }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -18,9 +20,17 @@ const AIAssistance = ({ user }) => {
   const [aiResponse, setAiResponse] = useState('');
   const [aiMode, setAiMode] = useState('');
   const [processingAi, setProcessingAi] = useState(false);
+
+  const [groqApiKey, setGroqApiKey] = useState(process.env.REACT_APP_GROQ_API_KEY || '');
   
-  // Interface mode toggle
   const [activeTab, setActiveTab] = useState('chat');
+  
+  const [fileUploading, setFileUploading] = useState(false);
+  const [fileUrl, setFileUrl] = useState('');
+  const [fileError, setFileError] = useState('');
+  const [filePreview, setFilePreview] = useState('');
+  const [fileType, setFileType] = useState('');
+  const fileInputRef = useRef(null);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,8 +44,8 @@ const AIAssistance = ({ user }) => {
     const fetchAppointments = async () => {
       try {
         if (user && user.uid) {
-          const response = await appointmentService.getPatientAppointments(user.uid);
-          setAppointments(response.appointments || []);
+          const appointmentsData = await appointmentService.getPatientAppointments(user.uid);
+          setAppointments(Array.isArray(appointmentsData) ? appointmentsData : []);
         }
       } catch (error) {
         console.error('Error fetching appointments:', error);
@@ -50,13 +60,70 @@ const AIAssistance = ({ user }) => {
     }
   }, [user]);
 
+  const callGroqApi = async (prompt, systemPrompt) => {
+    try {
+      if (!groqApiKey) {
+        throw new Error('GROQ API key not available');
+      }
+      
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${groqApiKey}`
+        },
+        body: JSON.stringify({
+          model: 'llama4-8b',
+          messages: [
+            { 
+              role: 'system', 
+              content: systemPrompt 
+            },
+            { 
+              role: 'user', 
+              content: prompt 
+            }
+          ],
+          temperature: 0.5,
+          max_tokens: 1024
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to get response from GROQ');
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('GROQ API Error:', error);
+      throw error;
+    }
+  };
+
+  const getSystemPrompt = (promptType) => {
+    switch (promptType) {
+      case 'first-aid':
+        return "You are a medical first aid assistant that provides clear, accurate emergency guidance. Always emphasize seeking professional medical help for serious situations.";
+      case 'symptoms':
+        return "You are a medical assistant providing general health information. You're not diagnosing patients, and you should always recommend consulting a doctor for proper diagnosis.";
+      case 'report':
+        return "You are a medical assistant that explains medical reports in simple terms. Break down medical terminology into everyday language.";
+      default:
+        return "You are a healthcare assistant providing general information. Always recommend consulting healthcare professionals for medical advice.";
+    }
+  };
+
   const handleSendMessage = async (messageText, isQuickPrompt = false) => {
-    if ((messageText.trim() === '' && !isQuickPrompt) || loading) return;
+   
+    if ((messageText.trim() === '' && !fileUrl && !isQuickPrompt) || loading) return;
     
     if (!isQuickPrompt) {
       setInput('');
     }
     
+    // Create user message
     const userMessage = {
       id: Date.now(),
       text: messageText,
@@ -69,36 +136,87 @@ const AIAssistance = ({ user }) => {
     setError('');
     
     try {
-      let response;
+      const promptType = isQuickPrompt || 'general';
       
-      if (isQuickPrompt === 'first-aid') {
-        response = await aiService.getFirstAidAssistance(messageText);
-      } else if (isQuickPrompt === 'symptoms') {
-        response = await aiService.analyzeSymptomsAssistance(messageText);
-      } else if (isQuickPrompt === 'report') {
-        response = await aiService.interpretHealthReport(messageText);
-      } else {
-        response = await aiService.getFirstAidAssistance(messageText);
+      const systemPrompt = getSystemPrompt(promptType);
+      
+      let fullPrompt = messageText;
+      
+      if (fileUrl) {
+        const fileName = fileUrl.split('/').pop().split('?')[0]; 
+        const fileExtension = fileName.split('.').pop().toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
+        const isPdf = fileExtension === 'pdf';
+        const isDoc = ['doc', 'docx'].includes(fileExtension);
+        const isTxt = fileExtension === 'txt';
+        
+        const fileTypeText = isImage ? 'medical image' : 
+                             isPdf ? 'PDF medical report' : 
+                             isDoc ? 'medical document' : 
+                             isTxt ? 'text file' : 'document';
+        
+        if (messageText.trim()) {
+          fullPrompt += `\n\nI've also uploaded a ${fileTypeText} (${fileName}) for analysis.`;
+        } else {
+          fullPrompt = `Please analyze this uploaded ${fileTypeText} (${fileName}).`;
+        }
+        
+        if (isTxt && fileType === 'text') {
+          const reader = new FileReader();
+          try {
+            const fileInput = document.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files.length > 0) {
+              const file = fileInput.files[0];
+              const fileContent = await new Promise((resolve) => {
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsText(file);
+              });
+              
+              fullPrompt += `\n\nHere's the content of the file:\n\n"""${fileContent}"""\n\nPlease analyze this and explain what it means in simple terms.`;
+            }
+          } catch (error) {
+            console.error('Error reading file content:', error);
+          }
+        }
+      }
+      
+      if (promptType === 'first-aid') {
+        fullPrompt = `I need first aid guidance for this situation: ${fullPrompt}. Please provide clear, step-by-step instructions.`;
+      } else if (promptType === 'symptoms') {
+        fullPrompt = `I'm experiencing these symptoms: ${fullPrompt}. What might they indicate? Please provide possible conditions, when I should see a doctor, and any home care recommendations.`;
+      } else if (promptType === 'report') {
+        if (!fullPrompt.includes("Please analyze this uploaded")) {
+          fullPrompt = `Please explain these medical terms or report findings in simple language: ${fullPrompt}. Break down any medical jargon.`;
+        }
+      }
+      
+      let responseText;
+      try {
+        responseText = await callGroqApi(fullPrompt, systemPrompt);
+      } catch (error) {
+        console.warn('Falling back to mock AI service:', error.message);
+        const mockResponse = await getAiMockResponse(promptType, fullPrompt);
+        responseText = mockResponse.response;
       }
       
       const aiMessage = {
         id: Date.now() + 1,
-        text: response.response,
+        text: responseText,
         sender: 'ai',
         timestamp: new Date().toISOString()
       };
       
-      if (response.disclaimer) {
-        const disclaimerMessage = {
-          id: Date.now() + 2,
-          text: response.disclaimer,
-          sender: 'system',
-          timestamp: new Date().toISOString()
-        };
-        
-        setMessages(prevMessages => [...prevMessages, aiMessage, disclaimerMessage]);
-      } else {
-        setMessages(prevMessages => [...prevMessages, aiMessage]);
+      const disclaimerMessage = {
+        id: Date.now() + 2,
+        text: "This information is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.",
+        sender: 'system',
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prevMessages => [...prevMessages, aiMessage, disclaimerMessage]);
+      
+      if (fileUrl) {
+        clearUploadedFile();
       }
     } catch (err) {
       console.error('Error getting AI response:', err);
@@ -108,7 +226,37 @@ const AIAssistance = ({ user }) => {
     }
   };
 
-  const handleQuickPrompt = (promptType) => {
+  const getAiMockResponse = async (promptType, message) => {
+    console.log('Using mock service for prompt type:', promptType);
+    
+    if (!promptType || promptType === 'general') {
+       if (message.toLowerCase().includes('symptom') || 
+          message.toLowerCase().includes('fever') || 
+          message.toLowerCase().includes('headache') || 
+          message.toLowerCase().includes('pain')) {
+        return await aiService.analyzeSymptomsAssistance(message);
+      } else if (message.toLowerCase().includes('report') || 
+                message.toLowerCase().includes('test') || 
+                message.toLowerCase().includes('results')) {
+        return await aiService.interpretHealthReport(message);
+      } else {
+         return await aiService.getFirstAidAssistance(message);
+      }
+    }
+    
+    switch(promptType) {
+      case 'first-aid':
+        return await aiService.getFirstAidAssistance(message);
+      case 'symptoms':
+        return await aiService.analyzeSymptomsAssistance(message);
+      case 'report':
+        return await aiService.interpretHealthReport(message);
+      default:
+        return await aiService.getFirstAidAssistance(message);
+    }
+  };
+
+   const handleQuickPrompt = (promptType) => {
     setInput('');
     
     let modeMessage;
@@ -120,7 +268,7 @@ const AIAssistance = ({ user }) => {
         modeMessage = "🟡 Symptom Analyzer activated. Please describe your symptoms:";
         break;
       case 'report':
-        modeMessage = "🔵 Medical Report Reader activated. Please enter medical terms or report sections to explain:";
+        modeMessage = "🔵 Medical Report Reader activated. Please enter medical terms, report sections to explain, or upload a medical document:";
         break;
       default:
         return;
@@ -135,6 +283,18 @@ const AIAssistance = ({ user }) => {
     };
     
     setMessages(prevMessages => [...prevMessages, systemMessage]);
+    
+    if (promptType === 'report') {
+      const fileUploadMessage = {
+        id: Date.now() + 1,
+        text: "📄 You can upload a medical report or image for analysis.",
+        sender: 'system',
+        promptType: 'file-upload',
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prevMessages => [...prevMessages, fileUploadMessage]);
+    }
     
     setTimeout(() => {
       document.getElementById('message-input')?.focus();
@@ -154,7 +314,6 @@ const AIAssistance = ({ user }) => {
     }
   };
 
-  // AI panel handlers (from PatientDashboard)
   const handleAiModeSelect = (mode) => {
     setAiMode(mode);
     setAiResponse('');
@@ -169,23 +328,27 @@ const AIAssistance = ({ user }) => {
     setProcessingAi(true);
     
     try {
-      let response;
+      const systemPrompt = getSystemPrompt(aiMode);
       
-      switch (aiMode) {
-        case 'first-aid':
-          response = await aiService.getFirstAidAssistance(aiPrompt);
-          break;
-        case 'symptoms':
-          response = await aiService.analyzeSymptomsAssistance(aiPrompt);
-          break;
-        case 'report':
-          response = await aiService.interpretHealthReport(aiPrompt);
-          break;
-        default:
-          throw new Error('Invalid AI mode');
+      let fullPrompt = aiPrompt;
+      if (aiMode === 'first-aid') {
+        fullPrompt = `I need first aid guidance for this situation: ${aiPrompt}. Please provide clear, step-by-step instructions.`;
+      } else if (aiMode === 'symptoms') {
+        fullPrompt = `I'm experiencing these symptoms: ${aiPrompt}. What might they indicate? Please provide possible conditions, when I should see a doctor, and any home care recommendations.`;
+      } else if (aiMode === 'report') {
+        fullPrompt = `Please explain these medical terms or report findings in simple language: ${aiPrompt}. Break down any medical jargon.`;
       }
       
-      setAiResponse(response.response || 'No response from AI assistant');
+      let responseText;
+      try {
+        responseText = await callGroqApi(fullPrompt, systemPrompt);
+      } catch (error) {
+        console.warn('Falling back to mock AI service:', error.message);
+        const mockResponse = await getAiMockResponse(aiMode, aiPrompt);
+        responseText = mockResponse.response;
+      }
+      
+      setAiResponse(responseText || 'No response from AI assistant');
     } catch (error) {
       console.error('AI Assistant Error:', error);
       setAiResponse('Error: Unable to get a response from the AI assistant. Please try again later.');
@@ -194,10 +357,144 @@ const AIAssistance = ({ user }) => {
     }
   };
 
+  const extractFileContent = async (file, fileType) => {
+    if (!file) return null;
+    
+    try {
+      if (fileType === 'image') {
+        return {
+          type: 'image',
+          content: null,
+          description: `[This is a medical image file: ${file.name}]`
+        };
+      }
+      
+      if (fileType === 'text') {
+        const reader = new FileReader();
+        const content = await new Promise((resolve) => {
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsText(file);
+        });
+        
+        return {
+          type: 'text',
+          content: content,
+          description: `Text file: ${file.name}`
+        };
+      }
+      
+      return {
+        type: fileType,
+        content: null,
+        description: `[This is a ${fileType.toUpperCase()} document: ${file.name}]`
+      };
+    } catch (error) {
+      console.error('Error extracting file content:', error);
+      return {
+        type: 'error',
+        content: null,
+        description: `[Error processing file: ${file.name}]`
+      };
+    }
+  };
+  
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    
+    setFileUploading(true);
+    setFileError('');
+    
+    try {
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
+      const isPdf = fileExtension === 'pdf';
+      const isDoc = ['doc', 'docx'].includes(fileExtension);
+      const isTxt = fileExtension === 'txt';
+      
+      let fileContentType = isImage ? 'image' : isPdf ? 'pdf' : isDoc ? 'document' : isTxt ? 'text' : 'other';
+      setFileType(fileContentType);
+      
+      if (isImage) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setFilePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview('');
+      }
+      
+      let fileContent = null;
+      if (isTxt) {
+        const reader = new FileReader();
+        fileContent = await new Promise((resolve) => {
+          reader.onload = (e) => {
+            resolve(e.target.result);
+          };
+          reader.readAsText(file);
+        });
+      } else {
+        fileContent = await extractFileContent(file, fileContentType);
+      }
+      
+      const storage = getStorage();
+      const fileRef = ref(storage, `health-reports/${user?.uid || 'anonymous'}/${Date.now()}-${file.name}`);
+      
+      await uploadBytes(fileRef, file);
+      const downloadURL = await getDownloadURL(fileRef);
+      
+      setFileUrl(downloadURL);
+      
+      if (aiMode === 'report') {
+        const fileTypeText = isImage ? 'medical image' : isPdf ? 'PDF medical report' : isDoc ? 'medical document' : 'text file';
+        
+        let promptAddition = `I've attached a ${fileTypeText} (${file.name}).`;
+        
+        if (isTxt && fileContent) {
+          promptAddition += `\n\nHere's the content of the file:\n\n"""${fileContent}"""\n\nPlease analyze this and explain what it means in simple terms.`;
+        } else if (fileContent) {
+          promptAddition += `\n\n${fileContent.description}\n\nPlease analyze this and explain what it means in simple terms.`;
+        }
+        
+        setAiPrompt(prev => {
+          const baseText = prev.trim() ? `${prev}\n\n` : '';
+          return `${baseText}${promptAddition}`;
+        });
+      }
+      
+      return {
+        url: downloadURL,
+        content: fileContent
+      };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setFileError('Failed to upload file. Please try again.');
+      return null;
+    } finally {
+      setFileUploading(false);
+    }
+  };
+
+  const handleFileInputChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      await handleFileUpload(file);
+    }
+  };
+
+  const clearUploadedFile = () => {
+    setFileUrl('');
+    setFilePreview('');
+    setFileType('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with user info (if logged in) */}
+        {/* loged in user */}
         {user && (
           <div className="md:flex md:items-center md:justify-between mb-6">
             <div className="flex-1 min-w-0">
@@ -257,7 +554,7 @@ const AIAssistance = ({ user }) => {
           </nav>
         </div>
 
-        {/* Content based on active tab */}
+        {/*  active tab */}
         {activeTab === 'chat' && (
           <div className="bg-white rounded-lg shadow-xl overflow-hidden min-h-[600px] flex flex-col">
             {/* Header */}
@@ -339,24 +636,116 @@ const AIAssistance = ({ user }) => {
                             : 'justify-start'
                         }`}
                       >
-                        <div
-                          className={`rounded-lg px-4 py-2 max-w-[80%] shadow-sm ${
-                            message.sender === 'user'
-                              ? 'bg-primary text-white'
-                              : message.sender === 'system'
-                              ? 'bg-gray-100 text-gray-800 border border-gray-200'
-                              : 'bg-gray-200 text-gray-800'
-                          }`}
-                        >
-                          <div className="whitespace-pre-line">{message.text}</div>
-                          <div 
-                            className={`text-xs mt-1 ${
-                              message.sender === 'user' ? 'text-indigo-200' : 'text-gray-500'
+                        {/*  upload message */}
+                        {message.promptType === 'file-upload' ? (
+                          <div className="w-full max-w-md mx-auto bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div className="flex items-center">
+                              <svg className="h-6 w-6 text-blue-500 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              <p className="text-sm text-blue-700">{message.text}</p>
+                            </div>
+                            
+                            <div className="mt-3 flex items-center">
+                              <label className="flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-white hover:bg-blue-50 cursor-pointer">
+                                <svg className="h-5 w-5 text-blue-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                {fileUploading ? 'Uploading...' : 'Upload File'}
+                                <input
+                                  type="file"
+                                  className="sr-only"
+                                  accept="image/*,.pdf,.doc,.docx,.txt"
+                                  onChange={handleFileInputChange}
+                                  disabled={loading || fileUploading}
+                                />
+                              </label>
+                              
+                              {fileUrl && (
+                                <span className="ml-3 text-sm text-green-600 font-medium flex items-center">
+                                  <svg className="h-5 w-5 text-green-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  File uploaded successfully
+                                </span>
+                              )}
+                            </div>
+                            
+                            {fileError && (
+                              <p className="mt-2 text-sm text-red-600">{fileError}</p>
+                            )}
+                            
+                            {/* File Preview in chat */}
+                            {fileUrl && (
+                              <div className="mt-3 border rounded-md p-3 bg-white">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-medium text-gray-900">Uploaded File</p>
+                                  <button
+                                    type="button"
+                                    onClick={clearUploadedFile}
+                                    className="text-sm text-red-600 hover:text-red-800"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                                
+                                {fileType === 'image' && filePreview ? (
+                                  <div className="mt-2">
+                                    <img 
+                                      src={filePreview} 
+                                      alt="Uploaded medical document" 
+                                      className="max-h-40 rounded-md shadow-sm"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center mt-2 text-sm text-gray-500">
+                                    <svg className="h-5 w-5 text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    {fileType === 'pdf' ? 'PDF document' : fileType === 'text' ? 'Text file' : 'Document'} uploaded
+                                    <a 
+                                      href={fileUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="ml-2 text-primary hover:underline"
+                                    >
+                                      View
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
+                            <div className="mt-3 text-xs text-blue-600">
+                              After uploading your file, you can type additional information about it to help the AI analyze it better.
+                            </div>
+                            
+                            <div 
+                              className="text-xs mt-1 text-gray-500 text-right"
+                            >
+                              {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            className={`rounded-lg px-4 py-2 max-w-[80%] shadow-sm ${
+                              message.sender === 'user'
+                                ? 'bg-primary text-white'
+                                : message.sender === 'system'
+                                ? 'bg-gray-100 text-gray-800 border border-gray-200'
+                                : 'bg-gray-200 text-gray-800'
                             }`}
                           >
-                            {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <div className="whitespace-pre-line">{message.text}</div>
+                            <div 
+                              className={`text-xs mt-1 ${
+                                message.sender === 'user' ? 'text-indigo-200' : 'text-gray-500'
+                              }`}
+                            >
+                              {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     ))}
                   </>
@@ -397,16 +786,21 @@ const AIAssistance = ({ user }) => {
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-r-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
                 >
                   {loading ? (
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </>
                   ) : (
-                    <svg className="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                    </svg>
+                    <>
+                      <svg className="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                      </svg>
+                      Send
+                    </>
                   )}
-                  {loading ? 'Sending...' : 'Send'}
                 </button>
               </form>
               <p className="mt-2 text-xs text-gray-500">
@@ -486,9 +880,105 @@ const AIAssistance = ({ user }) => {
                         disabled={processingAi}
                       />
                     </div>
+                    
+                    {/* File Upload UI*/}
+                    {aiMode === 'report' && (
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Upload medical report or image
+                        </label>
+                        
+                        <div className="flex items-center space-x-2">
+                          <label className="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
+                            <svg className="h-5 w-5 text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            {fileUploading ? 'Uploading...' : 'Choose File'}
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              className="sr-only"
+                              accept="image/*,.pdf,.doc,.docx,.txt"
+                              onChange={handleFileInputChange}
+                              disabled={processingAi || fileUploading}
+                            />
+                          </label>
+                          
+                          {fileUrl && (
+                            <button
+                              type="button"
+                              onClick={clearUploadedFile}
+                              className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            >
+                              <svg className="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        
+                        {fileError && (
+                          <p className="mt-2 text-sm text-red-600">{fileError}</p>
+                        )}
+                        
+                        {/* File Preview */}
+                        {fileUrl && (
+                          <div className="mt-3 border rounded-md p-3 bg-gray-50">
+                            <p className="text-sm font-medium text-gray-900 mb-1">Uploaded File:</p>
+                            
+                            {fileType === 'image' && filePreview ? (
+                              <div className="mt-2">
+                                <img 
+                                  src={filePreview} 
+                                  alt="Uploaded medical document" 
+                                  className="max-h-60 rounded-md shadow-sm"
+                                />
+                              </div>
+                            ) : fileType === 'pdf' ? (
+                              <div className="flex items-center text-sm text-gray-500">
+                                <svg className="h-5 w-5 text-red-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                PDF document uploaded
+                                <a 
+                                  href={fileUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="ml-2 text-primary hover:underline"
+                                >
+                                  View
+                                </a>
+                              </div>
+                            ) : (
+                              <div className="flex items-center text-sm text-gray-500">
+                                <svg className="h-5 w-5 text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Document uploaded
+                                <a 
+                                  href={fileUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="ml-2 text-primary hover:underline"
+                                >
+                                  Download
+                                </a>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        <p className="mt-2 text-xs text-gray-500">
+                          Upload medical reports, lab results, or images for AI analysis. 
+                          Supported formats: PDF, images (JPG, PNG), and text documents.
+                        </p>
+                      </div>
+                    )}
+                    
                     <button
                       type="submit"
-                      disabled={processingAi}
+                      disabled={processingAi || fileUploading}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                     >
                       {processingAi ? (
@@ -498,6 +988,14 @@ const AIAssistance = ({ user }) => {
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
                           Processing...
+                        </>
+                      ) : fileUploading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Uploading File...
                         </>
                       ) : (
                         'Ask AI Assistant'
