@@ -31,7 +31,7 @@ const Home = () => {
 
   return (
     <div className="bg-white">
-      {/* Hero Section - Modern Update */}
+      {/* Hero Section  */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-800">
         <div className="absolute inset-0">
           <img
@@ -43,26 +43,28 @@ const Home = () => {
         </div>
         
         <div className="relative max-w-7xl mx-auto">
-          <div className="py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
+          {/*  prevent wave overlap */}
+          <div className="pt-28 pb-32 px-4 sm:pt-36 sm:pb-40 sm:px-6 lg:pt-44 lg:pb-48 lg:px-8">
             <div className="max-w-3xl">
-              <h1 className="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl">
+              <h1 className="text-3xl font-extrabold text-white sm:text-4xl md:text-5xl lg:text-6xl">
                 <span className="block">Healthcare from</span>
                 <span className="block text-indigo-200">the comfort of home</span>
               </h1>
-              <p className="mt-6 text-xl text-indigo-100 max-w-3xl">
+              {/* text size  */}
+              <p className="mt-6 text-lg sm:text-xl text-white font-medium max-w-3xl text-shadow">
                 MINA brings healthcare to your fingertips with secure video consultations, 
                 AI-powered health assistance, and seamless appointment booking.
               </p>
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-8 sm:mt-10 flex flex-wrap gap-4">
                 <Link
                   to="/register"
-                  className="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-4 md:text-lg md:px-10 transition-all shadow-lg hover:shadow-xl"
+                  className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-4 md:text-lg md:px-8 transition-all shadow-lg hover:shadow-xl"
                 >
                   Get Started
                 </Link>
                 <Link
                   to="/about"
-                  className="px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-500 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 transition-all shadow-lg hover:shadow-xl"
+                  className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-500 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-8 transition-all shadow-lg hover:shadow-xl"
                 >
                   Learn More
                 </Link>
@@ -72,7 +74,7 @@ const Home = () => {
         </div>
         
         {/* Wave Divider */}
-        <div className="absolute bottom-0 left-0 right-0">
+        <div className="absolute bottom-0 left-0 right-0 -mb-1">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
             <path fill="#ffffff" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
           </svg>
@@ -80,7 +82,7 @@ const Home = () => {
       </div>
 
       {/* Features Section - Enhanced */}
-      <div className="py-20 bg-white">
+      <div className="py-16 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
             <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
@@ -92,8 +94,8 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="mt-16">
-            <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+          <div className="mt-12 sm:mt-16">
+            <dl className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-8">
               <div className="relative bg-white p-6 rounded-xl shadow-lg transition-all hover:shadow-xl">
                 <dt>
                   <div className="absolute flex items-center justify-center h-16 w-16 rounded-md bg-blue-500 text-white">
@@ -154,7 +156,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Connect with Professionals Section */}
+      {/* Doctor */}
       <div className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:flex lg:items-center lg:justify-between">
@@ -236,7 +238,7 @@ const Home = () => {
         </div>
       </div>
       
-      {/* Testimonial Section - New */}
+      {/* Testimonial  */}
       <div className="bg-gray-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center mb-16">
@@ -433,7 +435,7 @@ const Home = () => {
         </div>
       </footer>
       
-      {/* Render the BookAppointment component conditionally with onClose prop */}
+      {/*  BookAppointment  */}
       {showAppointmentForm && <BookAppointment user={null} onClose={handleCloseAppointmentForm} />}
     </div>
   );
