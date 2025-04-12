@@ -4,7 +4,7 @@ import { appointmentService } from '../services/api';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
-const BookAppointment = ({ user }) => {
+const BookAppointment = ({ user, onClose }) => {
   const [doctors, setDoctors] = useState([]);
   const [loadingDoctors, setLoadingDoctors] = useState(true);
   const [appointmentData, setAppointmentData] = useState({
@@ -92,6 +92,11 @@ const BookAppointment = ({ user }) => {
     setSubmitLoading(true);
 
     try {
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
       if (!appointmentData.doctorId || !appointmentData.date || !appointmentData.time) {
         setError('Please fill in all required fields');
         setSubmitLoading(false);
@@ -114,16 +119,32 @@ const BookAppointment = ({ user }) => {
     }
   };
 
+  const handleCancel = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-screen overflow-y-auto">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Book an Appointment</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Fill out the form below to schedule a video consultation with a doctor.
-          </p>
+        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-medium text-gray-900">Book an Appointment</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Fill out the form below to schedule a video consultation with a doctor.
+            </p>
+          </div>
+          <button 
+            onClick={handleCancel}
+            className="text-gray-400 hover:text-gray-600 focus:outline-none"
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         {error && (
@@ -221,7 +242,7 @@ const BookAppointment = ({ user }) => {
             <button
               type="button"
               className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              onClick={() => navigate('/patient-dashboard')}
+              onClick={handleCancel}
             >
               Cancel
             </button>

@@ -1,9 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import BookAppointment from '../components/BookAppointment';
 
 const Home = () => {
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+
+  // Close modal handler
+  const handleCloseAppointmentForm = () => {
+    setShowAppointmentForm(false);
+  };
+
+  // Show modal handler
+  const handleOpenAppointmentForm = () => {
+    setShowAppointmentForm(true);
+  };
+
+  // Close modal when Escape key is pressed
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setShowAppointmentForm(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
 
   return (
     <div className="bg-white">
@@ -200,7 +224,7 @@ const Home = () => {
                 </div>
                 <div className="px-6 pt-6 pb-8 bg-gray-50 sm:p-10">
                   <button
-                    onClick={() => setShowAppointmentForm(true)}
+                    onClick={handleOpenAppointmentForm}
                     className="w-full px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-4 md:text-lg transition-all shadow-lg hover:shadow-xl"
                   >
                     Hire a Doctor Now
@@ -409,8 +433,8 @@ const Home = () => {
         </div>
       </footer>
       
-      {/*  BookAppointment  */}
-      {showAppointmentForm && <BookAppointment user={null} />}
+      {/* Render the BookAppointment component conditionally with onClose prop */}
+      {showAppointmentForm && <BookAppointment user={null} onClose={handleCloseAppointmentForm} />}
     </div>
   );
 };
