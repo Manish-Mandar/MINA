@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import BookAppointment from '../components/BookAppointment';
 
 const Home = () => {
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+
   return (
     <div className="bg-white">
       {/* Hero Section - Modern Update */}
@@ -197,7 +199,12 @@ const Home = () => {
                   </div>
                 </div>
                 <div className="px-6 pt-6 pb-8 bg-gray-50 sm:p-10">
-                  <BookAppointment />
+                  <button
+                    onClick={() => setShowAppointmentForm(true)}
+                    className="w-full px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-4 md:text-lg transition-all shadow-lg hover:shadow-xl"
+                  >
+                    Hire a Doctor Now
+                  </button>
                 </div>
               </div>
             </div>
@@ -401,6 +408,9 @@ const Home = () => {
           </div>
         </div>
       </footer>
+      
+      {/*  BookAppointment  */}
+      {showAppointmentForm && <BookAppointment user={null} />}
     </div>
   );
 };
