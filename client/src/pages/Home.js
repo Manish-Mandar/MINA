@@ -1,21 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import BookAppointment from '../components/BookAppointment';
 
 const Home = () => {
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  const featuresRef = useRef(null);
 
-  // Close modal handler
   const handleCloseAppointmentForm = () => {
     setShowAppointmentForm(false);
   };
 
-  // Show modal handler
   const handleOpenAppointmentForm = () => {
     setShowAppointmentForm(true);
   };
 
-  // Close modal when Escape key is pressed
+  const scrollToFeatures = (e) => {
+    e.preventDefault();
+    
+    setTimeout(() => {
+      const yOffset = -80; 
+      const element = featuresRef.current;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      window.scrollTo({
+        top: y,
+        behavior: 'smooth'
+      });
+      element.setAttribute('tabindex', '-1');
+      element.focus({ preventScroll: true });
+    }, 100);
+  };
+
   useEffect(() => {
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
@@ -33,7 +48,7 @@ const Home = () => {
     <div className="bg-white">
       {/* Hero Section  */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-800">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
             alt="Medical professional"
@@ -42,7 +57,7 @@ const Home = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-800 mix-blend-multiply" />
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* prevent wave overlap */}
           <div className="pt-20 pb-24 sm:pt-28 sm:pb-32 md:pt-32 md:pb-36 lg:pt-40 lg:pb-40">
             <div className="max-w-3xl">
@@ -56,25 +71,25 @@ const Home = () => {
                 AI-powered health assistance, and seamless appointment booking.
               </p>
               <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
-                <Link
-                  to="/register"
-                  className="px-4 py-2 sm:px-6 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-3 md:text-lg md:px-6 lg:px-8 transition-all shadow-lg hover:shadow-xl"
+                <Link 
+                  to="/ai-assistance" 
+                  className="relative z-20 px-4 py-2 sm:px-6 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 md:py-3 md:text-lg md:px-6 lg:px-8 transition-all shadow-lg hover:shadow-xl active:scale-95 active:bg-blue-700 transform duration-150"
                 >
                   Get Started
                 </Link>
-                <Link
-                  to="/about"
-                  className="px-4 py-2 sm:px-6 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-blue-500 bg-white hover:bg-gray-50 md:py-3 md:text-lg md:px-6 lg:px-8 transition-all shadow-lg hover:shadow-xl"
+                <button
+                  onClick={scrollToFeatures}
+                  className="relative z-20 px-4 py-2 sm:px-6 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-blue-500 bg-white hover:bg-gray-50 md:py-3 md:text-lg md:px-6 lg:px-8 transition-all shadow-lg hover:shadow-xl active:scale-95 transform duration-150"
                 >
                   Learn More
-                </Link>
+                </button>
               </div>
             </div>
           </div>
         </div>
         
         {/* Wave Divider */}
-        <div className="absolute bottom-0 left-0 right-0 -mb-1">
+        <div className="absolute bottom-0 left-0 right-0 -mb-1 z-5">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -50 1440 320" className="w-full">
             <path fill="#ffffff" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
           </svg>
@@ -82,7 +97,7 @@ const Home = () => {
       </div>
 
       {/* Features Section - Enhanced */}
-      <div className="py-12 sm:py-16 lg:py-20 bg-white">
+      <div ref={featuresRef} className="py-12 sm:py-16 lg:py-20 bg-white scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
@@ -276,9 +291,6 @@ const Home = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 sm:h-5 sm:w-5">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
               </div>
             </div>
             
@@ -354,7 +366,7 @@ const Home = () => {
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0 space-x-4">
             <Link
-              to="/register"
+              to="/ai-assistance"
               className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 shadow-lg hover:shadow-xl transition-all"
             >
               Get started

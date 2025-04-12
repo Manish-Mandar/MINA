@@ -100,7 +100,7 @@ const Navbar = ({ user }) => {
                     <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold shadow-md">
                       {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
                     </div>
-                    <span className={`ml-2 text-sm font-medium ${isScrolled || !isHomePage ? 'text-gray-700' : 'text-white'}`}>
+                    <span className={`ml-2 text-sm font-medium ${isScrolled || !isHomePage ? 'text-gray-700' : 'text-gray-700'}`}>
                       {user.displayName || user.email.split('@')[0]}
                     </span>
                   </div>
