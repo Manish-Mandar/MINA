@@ -199,6 +199,8 @@ const BookAppointment = ({ user, onClose }) => {
   const handleCancel = () => {
     if (onClose) {
       onClose();
+    } else {
+      navigate('/patient-dashboard');
     }
   };
 
@@ -215,8 +217,10 @@ const BookAppointment = ({ user, onClose }) => {
             </p>
           </div>
           <button 
+            type="button"
             onClick={handleCancel}
             className="text-gray-400 hover:text-gray-600 focus:outline-none"
+            aria-label="Close"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -325,34 +329,6 @@ const BookAppointment = ({ user, onClose }) => {
             </div>
             <p className="text-xs text-gray-500 italic">
               Providing detailed information will help the doctor prepare for your appointment.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-              Message to Doctor <span className="text-gray-500 text-xs">(optional)</span>
-            </label>
-            <div className="relative">
-              <textarea
-                id="message"
-                name="message"
-                rows={3}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm 
-                focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm
-                transition-all duration-200 ease-in-out
-                bg-white bg-opacity-90 hover:bg-opacity-100 
-                placeholder-gray-400 resize-none p-3"
-                placeholder="Any additional information you'd like to share with the doctor..."
-                value={appointmentData.message}
-                onChange={handleChange}
-                maxLength={300}
-              />
-              <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                {messageCharCount}/300 characters
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 italic">
-              This message will be sent directly to the doctor before your appointment.
             </p>
           </div>
 

@@ -131,16 +131,7 @@ const DoctorDashboard = ({ user }) => {
 
         {/* Messages Section */}
         <div className="mt-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium text-gray-900">
-              Patient Messages
-              {unreadMessagesCount > 0 && (
-                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                  {unreadMessagesCount} new
-                </span>
-              )}
-            </h3>
-          </div>
+          
           <div className="mt-3 bg-white shadow overflow-hidden sm:rounded-md">
             {messagesLoading ? (
               <div className="py-10 flex justify-center">

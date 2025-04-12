@@ -270,7 +270,7 @@ const Home = () => {
                   <span className="text-blue-600 font-bold text-lg sm:text-xl">S</span>
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-base sm:text-lg font-bold">Sarah Johnson</h4>
+                  <h4 className="text-base sm:text-lg font-bold">Saroj Pandey</h4>
                   <p className="text-sm sm:text-base text-gray-500">Patient</p>
                 </div>
               </div>
@@ -300,7 +300,7 @@ const Home = () => {
                   <span className="text-blue-600 font-bold text-lg sm:text-xl">M</span>
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-base sm:text-lg font-bold">Dr. Michael Chen</h4>
+                  <h4 className="text-base sm:text-lg font-bold">Dr. Ram Gurung</h4>
                   <p className="text-sm sm:text-base text-gray-500">Physician</p>
                 </div>
               </div>
@@ -330,7 +330,7 @@ const Home = () => {
                   <span className="text-blue-600 font-bold text-lg sm:text-xl">J</span>
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-base sm:text-lg font-bold">James Wilson</h4>
+                  <h4 className="text-base sm:text-lg font-bold">Merry Singh</h4>
                   <p className="text-sm sm:text-base text-gray-500">Patient</p>
                 </div>
               </div>
@@ -430,11 +430,11 @@ const Home = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Contact</h3>
               <address className="not-italic text-gray-300">
-                <p>1234 Healthcare Avenue</p>
-                <p>Suite 567</p>
-                <p>New York, NY 10001</p>
+                <p>Kapan</p>
+                
+                <p>Kathmandu, Nepal</p>
                 <p className="mt-3">contact@mina.com</p>
-                <p>+1 (555) 123-4567</p>
+                <p>+977  9876543210</p>
               </address>
             </div>
           </div>

@@ -817,10 +817,10 @@ const AIAssistance = ({ user }) => {
                 <h3 className="text-lg leading-6 font-medium text-gray-900">AI Health Assistant</h3>
                 
                 {/* AI Mode Buttons */}
-                <div className="mt-4 flex space-x-4">
+                <div className="mt-5 flex flex-wrap sm:flex-nowrap gap-3 sm:space-x-4">
                   <button
                     onClick={() => handleAiModeSelect('first-aid')}
-                    className={`px-4 py-2 rounded-md text-white font-medium ${
+                    className={`flex-1 px-4 py-2.5 rounded-md text-white font-medium text-center ${
                       aiMode === 'first-aid' 
                         ? 'bg-red-600 hover:bg-red-700' 
                         : 'bg-red-500 hover:bg-red-600'
@@ -830,7 +830,7 @@ const AIAssistance = ({ user }) => {
                   </button>
                   <button
                     onClick={() => handleAiModeSelect('symptoms')}
-                    className={`px-4 py-2 rounded-md text-white font-medium ${
+                    className={`flex-1 px-4 py-2.5 rounded-md text-white font-medium text-center ${
                       aiMode === 'symptoms' 
                         ? 'bg-yellow-600 hover:bg-yellow-700' 
                         : 'bg-yellow-500 hover:bg-yellow-600'
@@ -840,7 +840,7 @@ const AIAssistance = ({ user }) => {
                   </button>
                   <button
                     onClick={() => handleAiModeSelect('report')}
-                    className={`px-4 py-2 rounded-md text-white font-medium ${
+                    className={`flex-1 px-4 py-2.5 rounded-md text-white font-medium text-center ${
                       aiMode === 'report' 
                         ? 'bg-blue-600 hover:bg-blue-700' 
                         : 'bg-blue-500 hover:bg-blue-600'
