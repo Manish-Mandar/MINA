@@ -76,21 +76,16 @@ const Register = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-     
-      const userDoc = await getDoc(doc(db, "users", user.uid));
+      // Always update the user document with the currently selected role
+      await setDoc(doc(db, "users", user.uid), {
+        fullName: user.displayName || 'Google User',
+        email: user.email,
+        role: formData.role, 
+        createdAt: new Date().toISOString(),
+        provider: 'google'
+      }, { merge: true });
       
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, "users", user.uid), {
-          fullName: user.displayName || 'Google User',
-          email: user.email,
-          role: formData.role,
-          createdAt: new Date().toISOString(),
-          provider: 'google'
-        });
-      }
-      
-      const userData = userDoc.exists() ? userDoc.data() : { role: formData.role };
-      navigate(userData.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard');
+      navigate(formData.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard');
       
     } catch (error) {
       console.error('Google sign-up error:', error);

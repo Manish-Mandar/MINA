@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './services/firebase';
+import { auth, db } from './services/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 // Pages
 import Home from './pages/Home';
@@ -25,10 +26,29 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        const idToken = await currentUser.getIdTokenResult();
-        const role = idToken.claims.role || 'patient'; 
-        setUserRole(role);
-        setUser(currentUser);
+        try {
+          // Get user role from Firestore instead of ID token claims
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          let role = 'patient'; // Default role
+          if (userDoc.exists()) {
+            role = userDoc.data().role || 'patient';
+          }
+          
+          // Create a user object that includes the role
+          const userWithRole = {
+            ...currentUser,
+            role: role
+          };
+          
+          setUserRole(role);
+          setUser(userWithRole);
+        } catch (error) {
+          console.error("Error getting user role:", error);
+          setUser(currentUser);
+          setUserRole('patient'); // Default to patient if there's an error
+        }
       } else {
         setUser(null);
         setUserRole(null);
