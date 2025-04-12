@@ -130,78 +130,7 @@ const DoctorDashboard = ({ user }) => {
         </div>
 
         {/* Messages Section */}
-        <div className="mt-6">
-          
-          <div className="mt-3 bg-white shadow overflow-hidden sm:rounded-md">
-            {messagesLoading ? (
-              <div className="py-10 flex justify-center">
-                <div className="w-12 h-12 border-t-4 border-primary border-solid rounded-full animate-spin"></div>
-              </div>
-            ) : messagesError ? (
-              <p className="py-6 px-4 text-sm text-red-600">{messagesError}</p>
-            ) : (
-              <ul className="divide-y divide-gray-200">
-                {messages.length > 0 ? messages
-                  .sort((a, b) => {
-                    if (a.read !== b.read) return a.read ? 1 : -1;
-                    return b.createdAt?.seconds - a.createdAt?.seconds || 0;
-                  })
-                  .map((message) => (
-                    <li key={message.id} className={`hover:bg-gray-50 ${!message.read ? 'bg-blue-50' : ''}`}>
-                      <div className="px-4 py-4 sm:px-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-start space-x-3 flex-1">
-                            <div className={`w-2 h-2 mt-2 rounded-full flex-shrink-0 ${!message.read ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium text-gray-900">
-                                  From: {message.patientName || 'Patient'}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {formatDate(message.createdAt)}
-                                </p>
-                              </div>
-                              <p className="mt-1 text-sm text-gray-600">
-                                {message.content}
-                              </p>
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {message.appointmentId && (
-                                  <>
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                      {message.subject || "Related to appointment"}
-                                    </span>
-                                    {getAppointmentDetails(message.appointmentId) && (
-                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                        Appt: {getAppointmentDetails(message.appointmentId).date} at {getAppointmentDetails(message.appointmentId).time}
-                                      </span>
-                                    )}
-                                  </>
-                                )}
-                                {!message.read && (
-                                  <button
-                                    onClick={() => handleMarkAsRead(message.id)}
-                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
-                                  >
-                                    Mark as read
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  )) : (
-                  <li>
-                    <div className="px-4 py-4 sm:px-6 text-sm text-gray-500 text-center">
-                      No messages from patients yet.
-                    </div>
-                  </li>
-                )}
-              </ul>
-            )}
-          </div>
-        </div>
+       
 
         {/* Today's Appointments */}
         <div className="mt-6">
