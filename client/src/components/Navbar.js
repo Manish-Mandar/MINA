@@ -38,19 +38,21 @@ const Navbar = ({ user }) => {
 
   return (
     <>
-      {/* navbar */}
-      <div className="h-16"></div>
+      {/* Spacer to prevent content from hiding behind navbar */}
+      <div className="h-16 md:h-20"></div>
       
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled || !isHomePage ? 'bg-white shadow-md' : 'bg-transparent'
+      <nav className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ${
+        isScrolled || !isHomePage 
+          ? 'bg-white shadow-md' 
+          : 'bg-gradient-to-r from-blue-600/90 to-blue-800/90 backdrop-blur-sm'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <Link to="/" className="flex items-center">
+                <Link to="/" className="flex items-center" aria-label="MediConnect Home">
                   <svg
-                    className="h-9 w-9 text-blue-600"
+                    className="h-8 w-8 text-blue-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -64,71 +66,48 @@ const Navbar = ({ user }) => {
                     />
                   </svg>
                   <span className={`ml-2 font-bold text-xl ${
-                    isScrolled || !isHomePage ? 'text-gray-800' : 'text-white'
+                    isScrolled || !isHomePage ? 'text-blue-600' : 'text-white'
                   }`}>
                     MediConnect
                   </span>
                 </Link>
               </div>
-              <div className="hidden sm:ml-8 sm:flex sm:items-center space-x-6">
-                <Link
-                  to="/"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === '/'
-                      ? 'bg-blue-100 text-blue-600'
-                      : `${isScrolled || !isHomePage ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/20'}`
-                  }`}
-                >
+              <div className="hidden md:ml-8 md:flex md:items-center space-x-1 lg:space-x-4">
+                <NavLink to="/" currentPath={location.pathname} isScrolled={isScrolled} isHomePage={isHomePage}>
                   Home
-                </Link>
-                <Link
-                  to="/about"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === '/about'
-                      ? 'bg-blue-100 text-blue-600'
-                      : `${isScrolled || !isHomePage ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/20'}`
-                  }`}
-                >
+                </NavLink>
+                <NavLink to="/about" currentPath={location.pathname} isScrolled={isScrolled} isHomePage={isHomePage}>
                   About
-                </Link>
-                <Link
-                  to="/ai-assistance"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === '/ai-assistance'
-                      ? 'bg-blue-100 text-blue-600'
-                      : `${isScrolled || !isHomePage ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/20'}`
-                  }`}
-                >
+                </NavLink>
+                <NavLink to="/ai-assistance" currentPath={location.pathname} isScrolled={isScrolled} isHomePage={isHomePage}>
                   AI Assistance
-                </Link>
-                <Link
-                  to={user ? (user.role === 'patient' ? '/patient-dashboard' : '/doctor-dashboard') : '/login'}
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname.includes('-dashboard')
-                      ? 'bg-blue-100 text-blue-600'
-                      : `${isScrolled || !isHomePage ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/20'}`
-                  }`}
+                </NavLink>
+                <NavLink 
+                  to={user ? (user.role === 'patient' ? '/patient-dashboard' : '/doctor-dashboard') : '/login'} 
+                  currentPath={location.pathname} 
+                  isScrolled={isScrolled} 
+                  isHomePage={isHomePage}
+                  isDashboard={true}
                 >
                   {user ? 'Dashboard' : 'Connect with Professionals'}
-                </Link>
+                </NavLink>
               </div>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+            <div className="hidden md:flex md:items-center space-x-3 lg:space-x-4">
               {user ? (
                 <>
-                  <div className="relative">
-                    <button
-                      className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      <span className="sr-only">Open user menu</span>
-                      <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold">
-                        {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
-                      </div>
-                    </button>
+                  <div className="relative flex items-center">
+                    <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold shadow-md">
+                      {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
+                    </div>
+                    <span className={`ml-2 text-sm font-medium ${isScrolled || !isHomePage ? 'text-gray-700' : 'text-white'}`}>
+                      {user.displayName || user.email.split('@')[0]}
+                    </span>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm"
+                    aria-label="Sign Out"
                   >
                     Sign Out
                   </button>
@@ -140,28 +119,32 @@ const Navbar = ({ user }) => {
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       isScrolled || !isHomePage
                         ? 'text-blue-600 border border-blue-600 hover:bg-blue-50'
-                        : 'bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 border border-white/30'
-                    } transition-colors`}
+                        : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/40'
+                    } transition-colors shadow-sm`}
+                    aria-label="Sign In"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+                    aria-label="Sign Up"
                   >
                     Sign Up
                   </Link>
                 </>
               )}
             </div>
-            <div className="-mr-2 flex items-center sm:hidden">
+            <div className="flex md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className={`inline-flex items-center justify-center p-2 rounded-lg ${
                   isScrolled || !isHomePage
-                    ? 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                    : 'text-white hover:text-gray-200 hover:bg-white/20'
-                } focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors`}
+                    ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
+                    : 'text-white hover:text-white hover:bg-white/20'
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+                aria-expanded={isMenuOpen}
+                aria-label="Toggle menu"
               >
                 <span className="sr-only">Open main menu</span>
                 {isMenuOpen ? (
@@ -192,93 +175,65 @@ const Navbar = ({ user }) => {
           </div>
         </div>
 
-        {/* Mobile menu, show/hide based on menu state. */}
-        {isMenuOpen && (
-          <div className="sm:hidden bg-white shadow-lg border-b">
-            <div className="pt-2 pb-3 space-y-1">
-              <Link
-                to="/"
-                className={`block px-4 py-3 rounded-lg text-base font-medium ${
-                  location.pathname === '/'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                to="/about"
-                className={`block px-4 py-3 rounded-lg text-base font-medium ${
-                  location.pathname === '/about'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link
-                to="/ai-assistance"
-                className={`block px-4 py-3 rounded-lg text-base font-medium ${
-                  location.pathname === '/ai-assistance'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                AI Assistance
-              </Link>
-              <Link
-                to={user ? (user.role === 'patient' ? '/patient-dashboard' : '/doctor-dashboard') : '/login'}
-                className={`block px-4 py-3 rounded-lg text-base font-medium ${
-                  location.pathname.includes('-dashboard')
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {user ? 'Dashboard' : 'Connect with Professionals'}
-              </Link>
-            </div>
-            <div className="pt-4 pb-5 border-t border-gray-200">
+        {/* Mobile menu */}
+        <div className={`md:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+          <div className="bg-white shadow-lg border-t border-gray-100 px-2 pt-2 pb-3 space-y-1">
+            <MobileNavLink to="/" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+              Home
+            </MobileNavLink>
+            <MobileNavLink to="/about" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+              About
+            </MobileNavLink>
+            <MobileNavLink to="/ai-assistance" currentPath={location.pathname} onClick={() => setIsMenuOpen(false)}>
+              AI Assistance
+            </MobileNavLink>
+            <MobileNavLink 
+              to={user ? (user.role === 'patient' ? '/patient-dashboard' : '/doctor-dashboard') : '/login'} 
+              currentPath={location.pathname} 
+              onClick={() => setIsMenuOpen(false)}
+              isDashboard={true}
+            >
+              {user ? 'Dashboard' : 'Connect with Professionals'}
+            </MobileNavLink>
+            
+            <div className="pt-4 pb-3 border-t border-gray-200">
               {user ? (
                 <>
-                  <div className="flex items-center px-4 py-2">
+                  <div className="flex items-center px-4 py-3">
                     <div className="flex-shrink-0">
-                      <div className="h-12 w-12 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold">
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold">
                         {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
                       </div>
                     </div>
                     <div className="ml-3">
-                      <div className="text-base font-medium text-gray-800">{user.displayName || user.email}</div>
+                      <div className="text-base font-medium text-gray-800">{user.displayName || user.email.split('@')[0]}</div>
                       <div className="text-sm font-medium text-gray-500">{user.email}</div>
                     </div>
                   </div>
-                  <div className="mt-3 px-4 pb-2">
+                  <div className="mt-3 px-2">
                     <button
                       onClick={() => {
                         handleLogout();
                         setIsMenuOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 text-base font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="w-full text-center px-4 py-3 text-base font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm"
                     >
                       Sign Out
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="mt-3 px-4 space-y-3 pb-3">
+                <div className="mt-3 px-2 space-y-3 pb-3">
                   <Link
                     to="/login"
-                    className="block py-3 px-4 text-base font-medium text-center border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+                    className="block w-full py-3 px-4 text-base font-medium text-center border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="block py-3 px-4 text-base font-medium text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="block w-full py-3 px-4 text-base font-medium text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Sign Up
@@ -287,9 +242,54 @@ const Navbar = ({ user }) => {
               )}
             </div>
           </div>
-        )}
+        </div>
       </nav>
     </>
+  );
+};
+
+// Helper component for desktop navigation links
+const NavLink = ({ to, children, currentPath, isScrolled, isHomePage, isDashboard = false }) => {
+  const isActive = isDashboard 
+    ? currentPath.includes('-dashboard') 
+    : currentPath === to;
+  
+  return (
+    <Link
+      to={to}
+      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+        isActive
+          ? 'bg-blue-100 text-blue-600'
+          : `${isScrolled || !isHomePage 
+              ? 'text-gray-700 hover:bg-gray-100 hover:text-blue-600' 
+              : 'text-white hover:bg-white/20'}`
+      }`}
+      aria-current={isActive ? 'page' : undefined}
+    >
+      {children}
+    </Link>
+  );
+};
+
+// Helper component for mobile navigation links
+const MobileNavLink = ({ to, children, currentPath, onClick, isDashboard = false }) => {
+  const isActive = isDashboard 
+    ? currentPath.includes('-dashboard') 
+    : currentPath === to;
+  
+  return (
+    <Link
+      to={to}
+      className={`block px-4 py-3 rounded-lg text-base font-medium ${
+        isActive
+          ? 'bg-blue-100 text-blue-600'
+          : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+      }`}
+      onClick={onClick}
+      aria-current={isActive ? 'page' : undefined}
+    >
+      {children}
+    </Link>
   );
 };
 
