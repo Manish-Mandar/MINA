@@ -136,9 +136,8 @@ const Contact = () => {
                     </svg>
                   </div>
                   <div className="ml-3 text-base text-gray-500">
-                    <p>1234 Healthcare Avenue</p>
-                    <p>Suite 567</p>
-                    <p>New York, NY 10001</p>
+                    <p>Kapan</p>
+                    <p>Kathmandu, Nepal</p>
                   </div>
                 </div>
                 
@@ -175,11 +174,11 @@ const Contact = () => {
                   <dd>9:00 AM - 6:00 PM</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt>Saturday:</dt>
+                  <dt>Sunday:</dt>
                   <dd>10:00 AM - 4:00 PM</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt>Sunday:</dt>
+                  <dt>Saturday:</dt>
                   <dd>Closed</dd>
                 </div>
               </dl>

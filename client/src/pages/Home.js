@@ -297,7 +297,7 @@ const Home = () => {
             <div className="bg-white p-5 sm:p-8 rounded-xl shadow-lg">
               <div className="flex items-center mb-4">
                 <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-lg sm:text-xl">M</span>
+                  <span className="text-blue-600 font-bold text-lg sm:text-xl">R</span>
                 </div>
                 <div className="ml-4">
                   <h4 className="text-base sm:text-lg font-bold">Dr. Ram Gurung</h4>
@@ -327,7 +327,7 @@ const Home = () => {
             <div className="bg-white p-5 sm:p-8 rounded-xl shadow-lg">
               <div className="flex items-center mb-4">
                 <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-lg sm:text-xl">J</span>
+                  <span className="text-blue-600 font-bold text-lg sm:text-xl">M</span>
                 </div>
                 <div className="ml-4">
                   <h4 className="text-base sm:text-lg font-bold">Merry Singh</h4>

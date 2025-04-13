@@ -106,7 +106,6 @@ const Register = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // Always update the user document with the currently selected role
       await setDoc(doc(db, "users", user.uid), {
         fullName: user.displayName || 'Google User',
         email: user.email,

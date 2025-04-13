@@ -11,7 +11,7 @@ const VideoCall = ({ user }) => {
   const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [callStatus, setCallStatus] = useState('initializing'); // initializing, connecting, connected, error, ended
+  const [callStatus, setCallStatus] = useState('initializing'); 
   const [remoteStream, setRemoteStream] = useState(null);
   const [localStream, setLocalStream] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -31,7 +31,6 @@ const VideoCall = ({ user }) => {
   const containerRef = useRef(null);
   const chatInputRef = useRef(null);
   
-  // Fetch appointment details
   useEffect(() => {
     const fetchAppointment = async () => {
       try {
@@ -48,7 +47,6 @@ const VideoCall = ({ user }) => {
           ...appointmentDoc.data()
         };
         
-        // Check if user is authorized to join this call
         const isDoctor = user.uid === appointmentData.doctorId;
         const isPatient = user.uid === appointmentData.patientId;
         
@@ -77,7 +75,6 @@ const VideoCall = ({ user }) => {
     
     fetchAppointment();
     
-    // Clean up function for when component unmounts
     return () => {
       if (localStream) {
         localStream.getTracks().forEach(track => {
@@ -93,7 +90,6 @@ const VideoCall = ({ user }) => {
         unsubscribeRef.current();
       }
       
-      // Clean up appointment signaling data
       try {
         updateDoc(doc(db, 'appointments', appointmentId), {
           offer: null,
@@ -105,14 +101,13 @@ const VideoCall = ({ user }) => {
     };
   }, [appointmentId, user]);
   
-  // Initialize media devices immediately after component loads
   useEffect(() => {
     const setupMediaDevices = async () => {
       if (loading) return;
       
       try {
         console.log('Requesting media access...');
-        // Try with basic constraints first
+    
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
           audio: true 
@@ -121,11 +116,10 @@ const VideoCall = ({ user }) => {
         console.log('Media access granted:', stream.getTracks().map(t => `${t.kind}:${t.label}`));
         setLocalStream(stream);
         
-        // Set local video stream
         if (localVideoRef.current) {
           console.log('Setting local video element source');
           localVideoRef.current.srcObject = stream;
-          localVideoRef.current.muted = true; // Ensure local video is muted to avoid feedback
+          localVideoRef.current.muted = true; 
         }
       } catch (err) {
         console.error('Failed to access media devices:', err);
@@ -137,12 +131,10 @@ const VideoCall = ({ user }) => {
     
     setupMediaDevices();
   }, [loading]);
-  
-  // Set up peer connection after local stream is available
+
   useEffect(() => {
     if (!localStream || !appointment) return;
     
-    // Remove any existing signaling data to ensure a clean start
     try {
       updateDoc(doc(db, 'appointments', appointmentId), {
         offer: null,
@@ -156,11 +148,9 @@ const VideoCall = ({ user }) => {
       try {
         setCallStatus('connecting');
         
-        // Determine if we're the call initiator
         const isInitiator = user.uid === appointment.patientId;
         console.log(`Initializing as ${isInitiator ? 'initiator' : 'receiver'}`);
         
-        // Create peer connection with wide compatibility settings
         const peer = new Peer({
           initiator: isInitiator,
           trickle: false,
@@ -181,13 +171,11 @@ const VideoCall = ({ user }) => {
             ]
           },
           sdpTransform: (sdp) => {
-            // Force H.264 video codec for wider compatibility
             return sdp.replace('SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 124 119 123 118 114 115 116',
                               'SAVPF 100 96 97 98 99 101 102 121 127 120 125 107 108 109 124 119 123 118 114 115 116');
           }
         });
         
-        // Handle signaling - offers and answers
         peer.on('signal', async (data) => {
           console.log(`${isInitiator ? 'Offer' : 'Answer'} signal generated:`, data);
           
@@ -200,7 +188,6 @@ const VideoCall = ({ user }) => {
               });
               console.log('Offer saved to database');
             } else {
-              // Send answer
               await updateDoc(doc(db, 'appointments', appointmentId), {
                 answer: JSON.stringify(data),
                 callAnsweredAt: new Date().toISOString()
@@ -213,19 +200,15 @@ const VideoCall = ({ user }) => {
           }
         });
         
-        // When we get a remote stream
         peer.on('stream', (stream) => {
           console.log('Remote stream received:', stream.getTracks().map(t => `${t.kind}:${t.label}`));
           
-          // Ensure we're updating state with the new stream
           setRemoteStream(stream);
           
-          // Directly set the stream to the video element outside of React's lifecycle
           if (remoteVideoRef.current) {
             console.log('Setting remote video element source');
             remoteVideoRef.current.srcObject = stream;
             
-            // Try to play the video immediately
             remoteVideoRef.current.play()
               .then(() => console.log('Remote video playing successfully'))
               .catch(e => {
@@ -239,35 +222,29 @@ const VideoCall = ({ user }) => {
           setCallStatus('connected');
         });
         
-        // Handle connection establishment
         peer.on('connect', () => {
           console.log('Peer connection established!');
           setCallStatus('connected');
         });
         
-        // Handle errors
         peer.on('error', (err) => {
           console.error('Peer connection error:', err);
           setCallStatus('error');
           setError(`Connection error: ${err.message}`);
         });
         
-        // Close event
         peer.on('close', () => {
           console.log('Peer connection closed');
           setCallStatus('ended');
         });
         
-        // Store peer reference
         peerRef.current = peer;
         
-        // Listen for signaling data from the other party
         const unsubscribe = onSnapshot(doc(db, 'appointments', appointmentId), (docSnapshot) => {
           if (!docSnapshot.exists()) return;
           
           const data = docSnapshot.data();
           
-          // As initiator, listen for answers
           if (isInitiator && data.answer) {
             try {
               const answer = JSON.parse(data.answer);
@@ -280,7 +257,6 @@ const VideoCall = ({ user }) => {
             }
           }
           
-          // As receiver, listen for offers
           if (!isInitiator && data.offer) {
             try {
               const offer = JSON.parse(data.offer);
@@ -294,7 +270,6 @@ const VideoCall = ({ user }) => {
           }
         });
         
-        // Store unsubscribe function
         unsubscribeRef.current = unsubscribe;
       } catch (err) {
         console.error('WebRTC initialization error:', err);
@@ -306,7 +281,7 @@ const VideoCall = ({ user }) => {
     initializePeerConnection();
     
     return () => {
-      // This cleanup function will run when localStream or appointment changes
+     
       if (peerRef.current) {
         peerRef.current.destroy();
       }
@@ -317,10 +292,8 @@ const VideoCall = ({ user }) => {
     };
   }, [localStream, appointment, appointmentId, user]);
   
-  // Additional effect to ensure video elements play when they have a stream
   useEffect(() => {
     const setupVideoElements = async () => {
-      // Setup local video
       if (localVideoRef.current && localStream) {
         localVideoRef.current.srcObject = localStream;
         try {
@@ -331,7 +304,6 @@ const VideoCall = ({ user }) => {
         }
       }
       
-      // Setup remote video
       if (remoteVideoRef.current && remoteStream) {
         remoteVideoRef.current.srcObject = remoteStream;
         try {
@@ -339,7 +311,7 @@ const VideoCall = ({ user }) => {
           console.log('Remote video playing');
         } catch (e) {
           console.error('Failed to play remote video:', e);
-          // Add a click handler to play on user interaction
+          
           const playOnClick = async () => {
             try {
               await remoteVideoRef.current.play();
@@ -356,7 +328,6 @@ const VideoCall = ({ user }) => {
     setupVideoElements();
   }, [localStream, remoteStream]);
   
-  // Timer for call duration
   useEffect(() => {
     if (callStatus === 'connected') {
       const timer = setInterval(() => {
@@ -367,7 +338,6 @@ const VideoCall = ({ user }) => {
     }
   }, [callStatus]);
   
-  // Format time for display
   const formatTime = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -376,7 +346,6 @@ const VideoCall = ({ user }) => {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Toggle fullscreen
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
       if (containerRef.current.requestFullscreen) {
@@ -391,7 +360,6 @@ const VideoCall = ({ user }) => {
     }
   };
   
-  // Toggle audio
   const toggleAudio = () => {
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
@@ -402,7 +370,6 @@ const VideoCall = ({ user }) => {
     }
   };
   
-  // Toggle video
   const toggleVideo = () => {
     if (localStream) {
       const videoTrack = localStream.getVideoTracks()[0];
@@ -413,11 +380,9 @@ const VideoCall = ({ user }) => {
     }
   };
   
-  // Share screen
   const shareScreen = async () => {
     try {
       if (isScreenSharing) {
-        // Revert to camera
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
           audio: true 
@@ -433,7 +398,6 @@ const VideoCall = ({ user }) => {
         localVideoRef.current.srcObject = stream;
         setIsScreenSharing(false);
       } else {
-        // Switch to screen share
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ 
           video: { cursor: 'always' },
           audio: false
@@ -444,7 +408,6 @@ const VideoCall = ({ user }) => {
           const sender = peerRef.current._pc.getSenders().find(s => s.track.kind === 'video');
           sender.replaceTrack(videoTrack);
           
-          // Handle screen share ending
           videoTrack.onended = async () => {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             const cameraTrack = stream.getVideoTracks()[0];
@@ -455,7 +418,6 @@ const VideoCall = ({ user }) => {
           };
         }
         
-        // Keep audio from current stream, just replace video
         screenStream.addTrack(localStream.getAudioTracks()[0]);
         setLocalStream(screenStream);
         localVideoRef.current.srcObject = screenStream;
@@ -467,7 +429,6 @@ const VideoCall = ({ user }) => {
     }
   };
   
-  // Send a chat message
   const sendChatMessage = () => {
     if (!chatMessage.trim()) return;
     
@@ -480,7 +441,6 @@ const VideoCall = ({ user }) => {
     setChatMessages(prev => [...prev, newMessage]);
     setChatMessage('');
     
-    // Focus back on the input
     if (chatInputRef.current) {
       chatInputRef.current.focus();
     }
@@ -489,17 +449,14 @@ const VideoCall = ({ user }) => {
   const endCall = async () => {
     console.log('Ending call...');
     
-    // Stop all media tracks
     if (localStream) {
       localStream.getTracks().forEach(track => track.stop());
     }
     
-    // Destroy peer connection
     if (peerRef.current) {
       peerRef.current.destroy();
     }
     
-    // Unsubscribe from Firebase listener
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }

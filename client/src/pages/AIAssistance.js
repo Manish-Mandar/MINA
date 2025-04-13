@@ -6,6 +6,8 @@ import VideoCall from '../components/VideoCall';
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+const pdfjsLib = window.pdfjsLib || {};
+
 const AIAssistance = ({ user }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -374,16 +376,96 @@ const AIAssistance = ({ user }) => {
       
       if (fileType === 'text') {
         const reader = new FileReader();
-        const content = await new Promise((resolve) => {
+        const content = await new Promise((resolve, reject) => {
           reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = (e) => reject(new Error("Error reading text file"));
           reader.readAsText(file);
         });
         
         return {
           type: 'text',
           content: content,
-          description: `Text file: ${file.name}`
+          description: `Text file: ${file.name}\n\n${content}`
         };
+      }
+      
+      if (fileType === 'pdf') {
+        try {
+          if (typeof window.pdfjsLib === 'undefined') {
+            console.error('PDF.js library not found. Make sure it is properly loaded.');
+            throw new Error('PDF.js library not loaded');
+          }
+          
+          console.log('Starting PDF extraction with PDF.js');
+          
+          const reader = new FileReader();
+          const arrayBuffer = await new Promise((resolve, reject) => {
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (e) => reject(new Error("Error reading PDF file"));
+            reader.readAsArrayBuffer(file);
+          });
+          
+          console.log('PDF file read as ArrayBuffer successfully, size:', arrayBuffer.byteLength);
+          
+          let extractedText = '';
+          
+          try {
+            console.log('Initializing PDF.js document');
+            const loadingTask = window.pdfjsLib.getDocument({data: arrayBuffer});
+            console.log('PDF loading task created');
+            
+            const pdf = await loadingTask.promise;
+            console.log('PDF loaded successfully, pages:', pdf.numPages);
+            
+            // Get total number of pages
+            const numPages = pdf.numPages;
+            
+            // Extract text from each page
+            for (let i = 1; i <= numPages; i++) {
+              console.log(`Processing page ${i} of ${numPages}`);
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              const textItems = textContent.items.map(item => item.str).join(' ');
+              extractedText += `Page ${i}:\n${textItems}\n\n`;
+            }
+            
+            console.log('PDF text extraction complete');
+          } catch (pdfJsError) {
+            console.error('Error in PDF.js processing:', pdfJsError);
+      
+            extractedText = 'Failed to process PDF content with PDF.js. ';
+            
+            try {
+              const textReader = new FileReader();
+              const rawText = await new Promise((resolve) => {
+                textReader.onload = (e) => resolve(e.target.result);
+                textReader.readAsText(file);
+              });
+              
+              if (rawText && rawText.length > 0) {
+                extractedText += `Extracted raw text:\n\n${rawText}`;
+              } else {
+                extractedText += 'This appears to be a scanned document or image-based PDF that does not contain extractable text.';
+              }
+            } catch (textError) {
+              console.error('Fallback text extraction also failed:', textError);
+              extractedText += 'Unable to extract any text from this PDF.';
+            }
+          }
+          
+          return {
+            type: 'pdf',
+            content: extractedText,
+            description: `Extracted text from PDF: ${file.name}\n\n${extractedText}`
+          };
+        } catch (pdfError) {
+          console.error('Error during PDF extraction process:', pdfError);
+          return {
+            type: 'pdf',
+            content: null,
+            description: `[PDF document: ${file.name}] - Unable to extract text content. This may be a scanned document or image-based PDF. Error: ${pdfError.message}`
+          };
+        }
       }
       
       return {
@@ -396,7 +478,7 @@ const AIAssistance = ({ user }) => {
       return {
         type: 'error',
         content: null,
-        description: `[Error processing file: ${file.name}]`
+        description: `[Error processing file: ${file.name}] - ${error.message}`
       };
     }
   };
@@ -408,6 +490,12 @@ const AIAssistance = ({ user }) => {
     setFileError('');
     
     try {
+      // Validate file size (limit to 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        throw new Error(`File too large. Maximum size is 10MB.`);
+      }
+      
       const fileExtension = file.name.split('.').pop().toLowerCase();
       const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
       const isPdf = fileExtension === 'pdf';
@@ -417,6 +505,7 @@ const AIAssistance = ({ user }) => {
       let fileContentType = isImage ? 'image' : isPdf ? 'pdf' : isDoc ? 'document' : isTxt ? 'text' : 'other';
       setFileType(fileContentType);
       
+      // Handle image preview
       if (isImage) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -427,7 +516,10 @@ const AIAssistance = ({ user }) => {
         setFilePreview('');
       }
       
+      // Process file content based on type
       let fileContent = null;
+      
+      // For txt files, we can read directly
       if (isTxt) {
         const reader = new FileReader();
         fileContent = await new Promise((resolve) => {
@@ -437,9 +529,11 @@ const AIAssistance = ({ user }) => {
           reader.readAsText(file);
         });
       } else {
+        // For other files, use the extraction function
         fileContent = await extractFileContent(file, fileContentType);
       }
       
+      // Upload to Firebase storage
       const storage = getStorage();
       const fileRef = ref(storage, `health-reports/${user?.uid || 'anonymous'}/${Date.now()}-${file.name}`);
       
@@ -448,6 +542,7 @@ const AIAssistance = ({ user }) => {
       
       setFileUrl(downloadURL);
       
+      // Handle immediate use in report mode
       if (aiMode === 'report') {
         const fileTypeText = isImage ? 'medical image' : isPdf ? 'PDF medical report' : isDoc ? 'medical document' : 'text file';
         
@@ -455,7 +550,7 @@ const AIAssistance = ({ user }) => {
         
         if (isTxt && fileContent) {
           promptAddition += `\n\nHere's the content of the file:\n\n"""${fileContent}"""\n\nPlease analyze this and explain what it means in simple terms.`;
-        } else if (fileContent) {
+        } else if (fileContent && fileContent.content) {
           promptAddition += `\n\n${fileContent.description}\n\nPlease analyze this and explain what it means in simple terms.`;
         }
         
@@ -471,7 +566,7 @@ const AIAssistance = ({ user }) => {
       };
     } catch (error) {
       console.error('Error uploading file:', error);
-      setFileError('Failed to upload file. Please try again.');
+      setFileError(error.message || 'Failed to upload file. Please try again.');
       return null;
     } finally {
       setFileUploading(false);
@@ -480,9 +575,94 @@ const AIAssistance = ({ user }) => {
 
   const handleFileInputChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      await handleFileUpload(file);
+    if (!file) return;
+    
+    
+    setFileError('');
+    setFileUploading(true);
+    
+    try {
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        throw new Error(`File too large. Maximum size is 10MB.`);
+      }
+      
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
+      const isPdf = fileExtension === 'pdf';
+      const isDoc = ['doc', 'docx'].includes(fileExtension);
+      const isTxt = fileExtension === 'txt';
+      
+      const fileContentType = isImage ? 'image' : isPdf ? 'pdf' : isDoc ? 'document' : isTxt ? 'text' : 'other';
+      setFileType(fileContentType);
+      
+      // Create image preview if applicable
+      if (isImage) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setFilePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview('');
+      }
+      
+      // Upload to Firebase storage
+      const storage = getStorage();
+      const fileRef = ref(storage, `health-reports/${user?.uid || 'anonymous'}/${Date.now()}-${file.name}`);
+      
+      await uploadBytes(fileRef, file);
+      const downloadURL = await getDownloadURL(fileRef);
+      
+      setFileUrl(downloadURL);
+      
+      // Add file content to prompt if in report mode
+      if (fileType === 'report' || getPromptType() === 'report' || isInReportMode()) {
+        const fileTypeText = isImage ? 'medical image' : isPdf ? 'PDF medical report' : isDoc ? 'medical document' : 'text file';
+        
+        let promptAddition = `I've attached a ${fileTypeText} (${file.name}).`;
+        
+        // For text files, include content directly
+        if (isTxt) {
+          const textReader = new FileReader();
+          const textContent = await new Promise((resolve, reject) => {
+            textReader.onload = (e) => resolve(e.target.result);
+            textReader.onerror = (e) => reject(new Error("Error reading file"));
+            textReader.readAsText(file);
+          });
+          
+          promptAddition += `\n\nHere's the content of the file:\n\n"""${textContent}"""\n\nPlease analyze this and explain what it means in simple terms.`;
+        }
+        
+        setAiPrompt(prev => {
+          const baseText = prev.trim() ? `${prev}\n\n` : '';
+          return `${baseText}${promptAddition}`;
+        });
+      }
+      
+      console.log("File uploaded successfully:", downloadURL);
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setFileError(error.message || 'Failed to upload file. Please try again.');
+      return null;
+    } finally {
+      setFileUploading(false);
     }
+  };
+
+  // Helper function to check if we're in report mode
+  const isInReportMode = () => {
+    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+    return (lastMessage && lastMessage.promptType === 'report') || aiMode === 'report';
+  };
+
+  const getPromptType = () => {
+    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+    if (lastMessage && lastMessage.promptType) {
+      return lastMessage.promptType;
+    }
+    return aiMode || 'general';
   };
 
   const clearUploadedFile = () => {
@@ -1032,7 +1212,7 @@ const AIAssistance = ({ user }) => {
                   <ul className="mt-4 divide-y divide-gray-200">
                     {appointments
                       .filter(appointment => appointment.status === 'scheduled')
-                      .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time))
+                      .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + a.time))
                       .slice(0, 5)
                       .map((appointment) => (
                         <li key={appointment.id} className="py-4">
@@ -1085,7 +1265,7 @@ const AIAssistance = ({ user }) => {
                 <>
                   <ul className="mt-4 divide-y divide-gray-200">
                     {appointments
-                      .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time))
+                      .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(a.date + ' ' + b.time))
                       .map((appointment) => (
                         <li key={appointment.id} className="py-4">
                           <div className="flex items-center justify-between">
