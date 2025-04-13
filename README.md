@@ -45,7 +45,7 @@ Built using cutting-edge technologies like React, Firebase, Node.js, and Groq's 
 - **Sanjeev Rai**: Frontend
 - **Sudeep Shrestha**:Backend
 
-
+---
 ### Prerequisites
 - **Node.js**: Ensure you have Node.js installed.
 - **Firebase**: Set up a Firebase project and configure Firestore, Firebase Authentication, and Firebase Hosting.
