@@ -5,6 +5,10 @@
 Built using cutting-edge technologies like React, Firebase, Node.js, and Groq's LLaMA 4, MINA ensures a responsive interface, secure data handling, and AI-powered medical support for users.
 
 ---
+## Problem Statements
+- **Geographic Barriers**
+- **Time**
+- **Lack Of Healthcare Professionals**
 
 ## Technologies Used
 
@@ -32,12 +36,15 @@ Built using cutting-edge technologies like React, Firebase, Node.js, and Groq's 
 - **Disease Symptoms Button**: Helps identify possible conditions based on user inputs.
 - **Health Report Reading Button**: Explains complex medical terms and test reports.
 
-### 🎥 Live Video Consultation
-- One-to-one real-time video calls between patients and doctors using WebRTC.
-
 ---
 
-## Getting Started
+## 🎥 Team name & Roles
+- **Bhuwan Bhatt**: Backend
+- **Bishesh Maharajan**: Frontend
+- **Manish Mandar**: Fullstack
+- **Sanjeev Rai**: Frontend
+- **Sudeep Shrestha**:Backend
+
 
 ### Prerequisites
 - **Node.js**: Ensure you have Node.js installed.
@@ -83,3 +90,6 @@ Built using cutting-edge technologies like React, Firebase, Node.js, and Groq's 
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
+
+## Live Demo
+https://mina-healthcare.web.app/
